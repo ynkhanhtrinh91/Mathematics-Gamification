@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head> 
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Tích Điểm & Rank Lớp Toán</title> 
-    <link rel="stylesheet" href="style.css">
+    <title>Hệ Thống Tích Điểm & Rank Lớp Toán</title>
+    
+    <!-- Nhúng CSS kèm tham số chống lưu Cache cũ -->
+    <link rel="stylesheet" href="style.css?v=2000">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- SDK Firebase compat -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -34,7 +35,7 @@
         </div>
     </div>
 
-    <!-- DASHBOARD CHÍNH -->
+    <!-- DASHBOARD CHÍNH (Thêm styleInline để tuyệt đối không tràn màn hình trước khi đăng nhập) -->
     <div id="app-screen" class="app-container hidden" style="display: none;">
         <!-- HEADER / NAVBAR -->
         <header class="navbar">
@@ -65,7 +66,7 @@
             </div>
         </header>
 
-        <!-- THANH NAV SIDEBAR DỌC (CÓ THỂ THU RA THU VÀO) -->
+        <!-- THANH NAV SIDEBAR DỌC -->
         <aside id="sidebar" class="sidebar">
             <button id="sidebar-toggle-btn" class="sidebar-toggle" title="Thu gọn / Mở rộng">
                 <i class="fas fa-chevron-left"></i>
@@ -86,9 +87,9 @@
             </nav>
         </aside>
 
-        <!-- KHU VỰC NỘI DUNG CHÍNH NẰM BÊN PHẢI SIDEBAR -->
+        <!-- KHU VỰC NỘI DUNG CHÍNH -->
         <div class="main-wrapper">
-            <!-- CHỌN HỌC SINH (Dành riêng cho Giáo viên) -->
+            <!-- CHỌN HỌC SINH -->
             <div id="teacher-controls" class="teacher-panel hidden">
                 <label><i class="fas fa-user-cog"></i> <b>Chế độ Giáo viên:</b> Chọn học sinh:</label>
                 <select id="student-selector">
@@ -98,10 +99,9 @@
                 <button onclick="resetMonthlyRank()" class="btn-reset-rank"><i class="fas fa-sync-alt"></i> Reset Rank Tháng Mới</button>
             </div>
 
-            <!-- TAB 1: BẢNG RANK & ĐIỂM TÍCH LŨY (GIỮ NGUYÊN HOÀN TOÀN) -->
+            <!-- TAB 1: BẢNG RANK -->
             <div id="tab-rank" class="tab-content active">
                 <main class="dashboard-grid">
-                    <!-- THẺ THÔNG TIN RANK & XP HỌC SINH -->
                     <section class="card rank-card">
                         <div class="profile-header">
                             <div class="avatar"><i class="fas fa-shield-alt"></i></div>
@@ -126,7 +126,6 @@
                         </div>
                     </section>
 
-                    <!-- BIỂU ĐỒ CỘT THỂ HIỆN HỆ THỐNG RANK TRUNG TÂM -->
                     <section class="card chart-card">
                         <h3><i class="fas fa-chart-bar"></i> Bảng Phân Cấp Rank Trong Tháng</h3>
                         <div class="rank-chart-container">
@@ -159,7 +158,6 @@
                         <p class="chart-status-text">Vị trí hiện tại của em: <b id="chart-current-rank">Rank Đồng</b></p>
                     </section>
 
-                    <!-- TÍNH ĐIỂM THI CUỐI THÁNG -->
                     <section class="card score-card">
                         <h3><i class="fas fa-calculator"></i> Điểm Thi Cuối Tháng</h3>
                         <div class="score-details">
@@ -185,7 +183,6 @@
                         </div>
                     </section>
 
-                    <!-- BẢNG CẬP NHẬT ĐIỂM (GIÁO VIÊN) -->
                     <section id="action-panel" class="card action-card hidden">
                         <h3><i class="fas fa-edit"></i> Cập Nhật Điểm Nhanh (Giáo Viên)</h3>
                         <div class="btn-grid">
@@ -205,13 +202,11 @@
                         </div>
                     </section>
 
-                    <!-- LỊCH SỬ ĐIỂM -->
                     <section class="card history-card">
                         <h3><i class="fas fa-history"></i> Lịch Sử Tích Điểm</h3>
                         <ul id="history-list" class="history-list"></ul>
                     </section>
 
-                    <!-- CỬA HÀNG ĐỔI & QUẢN LÝ THẺ ĐẶC QUYỀN -->
                     <section class="card shop-card">
                         <h3><i class="fas fa-id-card"></i> Kho Thẻ Đặc Quyền</h3>
                         <div class="inventory-box">
@@ -254,7 +249,7 @@
                 </main>
             </div>
 
-            <!-- TAB 2: QUẢN LÝ BÀI TẬP VỀ NHÀ -->
+            <!-- TAB 2: BÀI TẬP VỀ NHÀ -->
             <div id="tab-homework" class="tab-content">
                 <main class="page-container">
                     <div class="page-header-banner">
@@ -263,18 +258,13 @@
                     </div>
 
                     <div class="hw-layout-grid">
-                        <!-- THỐNG KÊ BIỂU ĐỒ VÒNG TRÒN -->
                         <section class="card hw-chart-card">
                             <h3><i class="fas fa-chart-pie"></i> Tỉ Lệ Hoàn Thành BTVN</h3>
                             <div class="donut-chart-wrapper">
                                 <svg viewBox="0 0 36 36" class="donut-svg">
-                                    <!-- Nền xám -->
                                     <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                    <!-- Đã làm (Xanh) -->
                                     <path id="donut-done" class="circle-done" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                    <!-- Đang tới hạn (Cam) -->
                                     <path id="donut-pending" class="circle-pending" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                    <!-- Quá hạn (Đỏ) -->
                                     <path id="donut-late" class="circle-late" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                                 </svg>
                                 <div class="donut-text">
@@ -289,7 +279,6 @@
                             </div>
                         </section>
 
-                        <!-- FORM GIAO BÀI TẬP (GIÁO VIÊN) -->
                         <section id="teacher-hw-create" class="card teacher-hw-card hidden">
                             <h3><i class="fas fa-plus-circle"></i> Giáo Viên Giao Bài Tập Mới</h3>
                             <form id="create-hw-form">
@@ -309,18 +298,15 @@
                             </form>
                         </section>
 
-                        <!-- DANH SÁCH BÀI TẬP VỀ NHÀ -->
                         <section class="card hw-list-card">
                             <h3><i class="fas fa-list-alt"></i> Danh Sách Bài Tập Về Nhà</h3>
-                            <div id="hw-list" class="hw-items-container">
-                                <!-- Render qua JS -->
-                            </div>
+                            <div id="hw-list" class="hw-items-container"></div>
                         </section>
                     </div>
                 </main>
             </div>
 
-            <!-- TAB 3: NHẮC NHỎ HỌC PHÍ & LỊCH HỌC BỔ SUNG -->
+            <!-- TAB 3: HỌC PHÍ & LỊCH HỌC -->
             <div id="tab-tuition" class="tab-content">
                 <main class="page-container">
                     <div class="page-header-banner alt-banner">
@@ -329,7 +315,6 @@
                     </div>
 
                     <div class="tuition-layout-grid">
-                        <!-- THÔNG TIN TÍNH HỌC PHÍ -->
                         <section class="card tuition-info-card">
                             <h3><i class="fas fa-file-invoice-dollar"></i> Tổng Quan Học Phí (Tính vào ngày 1 hàng tháng)</h3>
                             <div class="tuition-stats-grid">
@@ -364,7 +349,6 @@
                             </div>
                         </section>
 
-                        <!-- LỊCH HỌC TRỰC QUAN -->
                         <section class="card calendar-card">
                             <div class="calendar-header">
                                 <h3><i class="fas fa-calendar-check"></i> Lịch Học Tháng <span id="current-month-display">--</span></h3>
@@ -375,12 +359,9 @@
                             <div class="calendar-grid-header">
                                 <div>CN</div><div>T2</div><div>T3</div><div>T4</div><div>T5</div><div>T6</div><div>T7</div>
                             </div>
-                            <div id="calendar-days-grid" class="calendar-days-grid">
-                                <!-- Render qua JS -->
-                            </div>
+                            <div id="calendar-days-grid" class="calendar-days-grid"></div>
                         </section>
 
-                        <!-- THÔNG BÁO DÀNH CHO GIÁO VIÊN (TẠO BUỔI HỌC BÙ) -->
                         <section id="teacher-notif-control" class="card teacher-notif-card hidden">
                             <h3><i class="fas fa-bullhorn"></i> Giáo Viên Thông Báo Lịch Học Bù / Đột Xuất</h3>
                             <form id="create-notif-form">
@@ -404,8 +385,8 @@
         </div>
     </div>
 
-    <!-- MODAL BẢNG HƯỚNG DẪN RANK -->
-    <div id="guide-modal" class="modal hidden">
+    <!-- MODAL HƯỚNG DẪN RANK (Định vị fixed ẩn ban đầu chuẩn) -->
+    <div id="guide-modal" class="modal hidden" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
                 <h2><i class="fas fa-award"></i> BẢNG RANK & QUYỀN LỢI TOÁN HỌC</h2>
@@ -429,6 +410,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=1002"></script>
+    <script src="script.js?v=2000"></script>
 </body>
 </html>
