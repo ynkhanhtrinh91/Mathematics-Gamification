@@ -42,20 +42,12 @@
             </div>
             
             <!-- THANH CHUYỂN TRANG (TAB NAVIGATION) -->
+            <!-- THANH CHUYỂN TRANG (NAV TABS) -->
             <nav class="nav-tabs">
-                <button class="nav-tab active" onclick="switchTab('tab-gamification')"><i class="fas fa-star"></i> Tích Điểm & Rank</button>
-                <button class="nav-tab" onclick="switchTab('tab-homework')"><i class="fas fa-book"></i> BTVN & Chấm Điểm</button>
-                <button class="nav-tab" onclick="switchTab('tab-tuition')"><i class="fas fa-calendar-alt"></i> Học Phí & Lịch Học</button>
+                <button class="nav-tab active" onclick="switchTab('tab-gamification', this)"><i class="fas fa-star"></i> Tích Điểm & Rank</button>
+                <button class="nav-tab" onclick="switchTab('tab-homework', this)"><i class="fas fa-book"></i> BTVN & Chấm Điểm</button>
+                <button class="nav-tab" onclick="switchTab('tab-tuition', this)"><i class="fas fa-calendar-alt"></i> Học Phí & Lịch Học</button>
             </nav>
-
-            <div class="user-info">
-                <button id="guide-btn" class="btn-guide"><i class="fas fa-scroll"></i> Cẩm Nang Rank</button>
-                <span id="role-badge" class="badge">Role</span>
-                <span id="user-display">Trình Yến Khanh</span>
-                <button id="logout-btn" class="btn-secondary"><i class="fas fa-sign-out-alt"></i></button>
-            </div>
-        </header>
-
         <!-- CHỌN HỌC SINH (Dành riêng cho Giáo viên) -->
         <div id="teacher-controls" class="teacher-panel hidden">
             <label><i class="fas fa-user-cog"></i> <b>Chế độ Giáo viên:</b> Chọn học sinh:</label>
