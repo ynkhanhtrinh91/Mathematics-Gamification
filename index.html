@@ -6,6 +6,10 @@
     <title>Hệ Thống Rank & Tích Điểm Toán Học</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- SDK Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -23,7 +27,7 @@
                     <label>Mật khẩu</label>
                     <input type="password" id="password" placeholder="Nhập mật khẩu..." required>
                 </div>
-                <button type="submit" class="btn-primary">Đăng Nhập</button>
+                <button type="submit" class="btn-primary" style="width: 100%;">Đăng Nhập</button>
             </form>
             <p id="login-error" class="error-msg"></p>
         </div>
@@ -119,7 +123,7 @@
                 <div class="score-details">
                     <div class="score-item">
                         <span>Điểm Bài Thi (70%):</span>
-                        <input type="number" id="test-score" min="0" max="10" step="0.5" disabled>
+                        <input type="number" id="test-score" min="0" max="10" step="0.5" disabled style="width: 60px; text-align: center; font-weight: bold;">
                     </div>
                     <div class="score-item">
                         <span>Điểm XP Quy Đổi (30%):</span>
@@ -154,7 +158,6 @@
                     <button onclick="addXP(-1, 'Vào lớp trễ quá 5 phút')" class="btn-danger">-1 XP: Vào trễ >5p</button>
                 </div>
                 <div class="custom-update">
-                    <label>Cập nhật điểm thi cuối tháng:</label>
                     <input type="number" id="input-test-score" min="0" max="10" step="0.25" placeholder="Nhập điểm thi...">
                     <button onclick="updateTestScore()" class="btn-primary">Lưu điểm thi</button>
                 </div>
@@ -197,7 +200,7 @@
                 <span id="close-modal" class="close-btn">&times;</span>
             </div>
             <div class="modal-body">
-                <p>Điểm Rank và số buổi học sẽ được **reset lại vào mỗi đầu tháng**. Hãy thi đua thăng hạng để nhận ưu đãi!</p>
+                <p style="font-size: 0.88rem; color: #64748b;">Điểm Rank và số buổi học sẽ được <b>reset lại vào mỗi đầu tháng</b>. Hãy thi đua thăng hạng để nhận ưu đãi!</p>
                 <div id="rank-guide-list"></div>
 
                 <div class="guide-note">
