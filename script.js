@@ -24,7 +24,9 @@
 </script>
 
 // Khởi tạo Firebase
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 const db = firebase.database();
 
 // CẤU HÌNH RANK
@@ -55,13 +57,11 @@ let selectedStudentKey = "hung";
 // LẮNG NGHE DỮ LIỆU ĐỒNG BỘ REALTIME TỪ FIREBASE
 db.ref("app_data").on("value", (snapshot) => {
     const data = snapshot.val();
-    if (data) {
-        appData = data;
-    } else {
-        db.ref("app_data").set(initialData);
-    }
-    if (currentUser) {
-        renderStudentData();
+    if (data && data.students) {
+        appData = data; // Chỉ cập nhật khi Firebase thực sự có dữ liệu
+        if (currentUser) {
+            renderStudentData();
+        }
     }
 });
 
