@@ -21,8 +21,8 @@ const RANKS = [
     { id: "dong", name: "🥉 Rank Đồng (Tập Sự)", minXP: 0, maxXP: 19, benefit: "Mức khởi đầu học tập trong tháng.", bonusExam: 0 },
     { id: "bac", name: "🥈 Rank Bạc (Thợ Săn Dạng Toán)", minXP: 20, maxXP: 44, benefit: "Mở khóa 1 Thẻ Gợi Ý Bài Khó trong giờ học.", bonusExam: 0 },
     { id: "vang", name: "🥇 Rank Vàng (Chiến Binh)", minXP: 45, maxXP: 74, benefit: "Mở khóa Thẻ Gợi Ý + Thưởng phần quà nhỏ.", bonusExam: 0.25 },
-    { id: "bachkim", name: "💎 Rank Bạch Kim (Cao Thủ Đặt Câu Hỏi)", minXP: 75, maxXP: 109, benefit: "Thẻ Miễn 1 bài BTVN + Tuyên dương gửi Phụ huynh.", bonusExam: 0.5 },
-    { id: "kimcuong", name: "👑 Rank Kim Cương / Cao Thủ", minXP: 110, maxXP: 9999, benefit: "Nhận Bằng Chứng Nhận + Nhận bộ LEGO (khi DTK >= 9.0).", bonusExam: 1.0 }
+    { id: "bachkim", name: "💎 Rank Bạch Kim (Cao Thủ)", minXP: 75, maxXP: 109, benefit: "Thẻ Miễn 1 bài BTVN + Tuyên dương gửi Phụ huynh.", bonusExam: 0.5 },
+    { id: "kimcuong", name: "👑 Rank Kim Cương (Chiến tướng)", minXP: 110, maxXP: 9999, benefit: "Nhận Bằng Chứng Nhận + Nhận bộ LEGO (khi DTK >= 9.0).", bonusExam: 1.0 }
 ];
 
 // 3. DỮ LIỆU BAN ĐẦU
