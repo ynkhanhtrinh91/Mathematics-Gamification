@@ -50,14 +50,30 @@ db.ref("app_data").on("value", (snapshot) => {
 });
 
 // TAB CHUYỂN TRANG
-function switchTab(tabId) {
+function switchTab(tabId, btnElement) {
+    // Ẩn tất cả nội dung các tab
     document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+    // Bỏ trạng thái active của tất cả các nút
     document.querySelectorAll(".nav-tab").forEach(el => el.classList.remove("active"));
-    document.getElementById(tabId).classList.add("active");
-    event.currentTarget.classList.add("active");
     
+    // Hiển thị tab được chọn
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) {
+        targetTab.classList.add("active");
+    }
+
+    // Đổi màu nút được chọn
+    if (btnElement) {
+        btnElement.classList.add("active");
+    } else if (window.event && window.event.target) {
+        window.event.target.classList.add("active");
+    }
+    
+    // Nếu chuyển sang tab BTVN thì vẽ biểu đồ Donut
     if (tabId === "tab-homework") {
-        renderDonutChart();
+        setTimeout(() => {
+            renderDonutChart();
+        }, 100);
     }
 }
 
