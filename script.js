@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const studentSelector = document.getElementById("student-selector");
     const guideModal = document.getElementById("guide-modal");
 
-    // ĐĂNG NHẬP (Chống refresh trang)
+    // ĐĂNG NHẬP
     if (loginForm) {
         loginForm.addEventListener("submit", (e) => {
             e.preventDefault();
@@ -163,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // BÀI TẬP VỀ NHÀ FORM
+    // FORM GIAO BÀI TẬP CÓ ĐÍNH KÈM FILE PDF TỪ GIÁO VIÊN
     const createHwForm = document.getElementById("create-hw-form");
     if (createHwForm) {
         createHwForm.addEventListener("submit", (e) => {
@@ -173,6 +173,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const title = document.getElementById("hw-title").value.trim();
             const desc = document.getElementById("hw-desc").value.trim();
             const deadline = document.getElementById("hw-deadline").value;
+            const teacherFileInput = document.getElementById("teacher-hw-file");
+
+            let attachedFileName = "";
+            if (teacherFileInput && teacherFileInput.files[0]) {
+                attachedFileName = teacherFileInput.files[0].name;
+            }
 
             const hwId = "hw_" + Date.now();
             if (!appData.homeworks) appData.homeworks = {};
@@ -182,6 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 title,
                 desc,
                 deadline,
+                teacherPdf: attachedFileName,
                 createdAt: new Date().toISOString(),
                 submissions: {}
             };
@@ -192,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // THÔNG BÁO FORM
+    // FORM THÔNG BÁO
     const createNotifForm = document.getElementById("create-notif-form");
     if (createNotifForm) {
         createNotifForm.addEventListener("submit", (e) => {
@@ -510,8 +517,11 @@ function renderHomeworks() {
                 <h4>${hw.title}</h4>
                 <span class="hw-status-badge">${statusText}</span>
             </div>
-            ${hw.desc ? `<p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.3rem 0;">${hw.desc}</p>` : ''}
+            ${hw.desc ? `<p style="font-size: 0.88rem; color: var(--text-muted); margin: 0.3rem 0;">${hw.desc}</p>` : ''}
             <div class="hw-deadline-text"><i class="far fa-clock"></i> Hạn nộp: <b>${formattedDeadline}</b></div>
+            
+            ${hw.teacherPdf ? `<a href="#" onclick="alert('Đang mở file đề bài: ${hw.teacherPdf}'); return false;" class="btn-pdf-download"><i class="fas fa-file-pdf"></i> Tải / Xem Đề Bài PDF: <b>${hw.teacherPdf}</b></a>` : ''}
+
             ${renderSubmissionArea(hw.id, studentSub)}
         `;
 
@@ -536,7 +546,7 @@ function renderSubmissionArea(hwId, studentSub) {
         } else {
             return `
                 <div class="hw-file-upload-box">
-                    <label style="display:block; font-size: 0.8rem; font-weight:700; margin-bottom: 0.4rem;">Upload file PDF bài tập để nộp:</label>
+                    <label style="display:block; font-size: 0.82rem; font-weight:800; margin-bottom: 0.4rem;">Upload file PDF bài làm để nộp:</label>
                     <input type="file" id="file-${hwId}" accept="application/pdf" style="font-size: 0.8rem; margin-bottom: 0.5rem;">
                     <button onclick="submitHomework('${hwId}')" class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;"><i class="fas fa-upload"></i> Nộp Bài PDF</button>
                 </div>
@@ -554,7 +564,7 @@ function renderSubmissionArea(hwId, studentSub) {
                 </div>
             `;
         } else {
-            return `<p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Học sinh chưa nộp bài tập này.</p>`;
+            return `<p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.5rem;">Học sinh chưa nộp bài tập này.</p>`;
         }
     }
 }
