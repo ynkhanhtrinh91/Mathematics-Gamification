@@ -129,6 +129,22 @@ function renderStudentData() {
     document.getElementById("current-xp").textContent = student.xp || 0;
     document.getElementById("streak-count").textContent = student.streak || 0;
 
+    // HIỂN THỊ SỐ THẺ ĐẶC QUYỀN SỞ HỮU
+    const hintEl = document.getElementById("card-hint-count");
+    const hwEl = document.getElementById("card-homework-count");
+    if (hintEl) hintEl.textContent = student.hintCard || 0;
+    if (hwEl) hwEl.textContent = student.homeworkCard || 0;
+
+    // ẨN / HIỆN BẢNG DUYỆT THẺ DÀNH CHO GIÁO VIÊN
+    const teacherCardPanel = document.getElementById("teacher-card-control");
+    if (teacherCardPanel) {
+        if (currentUser.role === "teacher") {
+            teacherCardPanel.classList.remove("hidden");
+        } else {
+            teacherCardPanel.classList.add("hidden");
+        }
+    }
+
     const currentRank = RANKS.find(r => (student.xp || 0) >= r.minXP && (student.xp || 0) <= r.maxXP) || RANKS[0];
     document.getElementById("rank-badge").textContent = currentRank.name;
     document.getElementById("chart-current-rank").textContent = currentRank.name;
@@ -241,25 +257,52 @@ function resetMonthlyRank() {
     }
 }
 
-function redeemReward(cost, rewardName) {
+// ĐỔI THẺ BẰNG XP (+1 THẺ VÀO KHO)
+function redeemReward(cost, cardType, rewardName) {
     const student = appData.students[selectedStudentKey];
     if ((student.xp || 0) < cost) {
-        alert("Rất tiếc! Em chưa đủ số điểm XP để đổi đặc quyền này.");
+        alert("Rất tiếc! Em chưa đủ số điểm XP để đổi thẻ này.");
         return;
     }
     if (confirm(`Bạn có chắc muốn dùng ${cost} XP để đổi "${rewardName}"?`)) {
         student.xp -= cost;
+        student[cardType] = (student[cardType] || 0) + 1;
+        
         const now = new Date();
         if (!student.history) student.history = [];
         student.history.push({
             amount: -cost,
-            reason: `Đổi quà: ${rewardName}`,
+            reason: `🛒 Đổi quà: ${rewardName} (+1 thẻ)`,
             date: `${now.getDate()}/${now.getMonth() + 1}`
+        });
+        saveToFirebase();
+        alert(`Đã đổi thành công 1 ${rewardName}!`);
+    }
+}
+
+// GIÁO VIÊN DUYỆT TRỪ THẺ KHI HỌC SINH SỬ DỤNG
+function useCard(cardType, amount, reason) {
+    if (currentUser.role !== "teacher") return;
+    const student = appData.students[selectedStudentKey];
+    
+    if ((student[cardType] || 0) <= 0 && amount < 0) {
+        alert("Học sinh này hiện không còn thẻ này để sử dụng!");
+        return;
+    }
+
+    if (confirm(`Xác nhận dùng 1 thẻ của học sinh?`)) {
+        student[cardType] = Math.max(0, (student[cardType] || 0) + amount);
+        
+        const now = new Date();
+        if (!student.history) student.history = [];
+        student.history.push({
+            amount: 0,
+            reason: `🎫 ${reason}`,
+            date: `${now.getDate()}/${now.getMonth() + 1} ${now.getHours()}:${now.getMinutes()}`
         });
         saveToFirebase();
     }
 }
-
 // LƯU DỮ LIỆU TRỰC TIẾP LÊN FIREBASE CLOUD
 function saveToFirebase() {
     db.ref("app_data").set(appData);
