@@ -1,4 +1,4 @@
-// 1. CẤU HÌNH FIREBASE CHUẨN
+// CẤU HÌNH FIREBASE
 const firebaseConfig = {
     apiKey: "AIzaSyDdyJR5uRBXYNY0pwsn0Z9HjQLQfZ7pUYM",
     authDomain: "mathematics-gamification.firebaseapp.com",
@@ -15,7 +15,7 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-// CẤU HÌNH RANK
+// RANKS
 const RANKS = [
     { id: "dong", name: "🥉 Rank Đồng (Tập Sự)", minXP: 0, maxXP: 19, bonusExam: 0 },
     { id: "bac", name: "🥈 Rank Bạc (Thợ Săn Dạng Toán)", minXP: 20, maxXP: 44, bonusExam: 0 },
@@ -40,7 +40,7 @@ let appData = initialData;
 let currentUser = null;
 let selectedStudentKey = "hung";
 
-// LẮNG NGHE FIREBASE REALTIME
+// LẮNG NGHE REALTIME
 db.ref("app_data").on("value", (snapshot) => {
     const data = snapshot.val();
     if (data && data.students) {
@@ -49,35 +49,22 @@ db.ref("app_data").on("value", (snapshot) => {
     }
 });
 
-// TAB CHUYỂN TRANG
+// TAB CHUYỂN TRANG AN TOÀN
 function switchTab(tabId, btnElement) {
-    // Ẩn tất cả nội dung các tab
     document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
-    // Bỏ trạng thái active của tất cả các nút
-    document.querySelectorAll(".nav-tab").forEach(el => el.classList.remove("active"));
+    document.querySelectorAll(".sidebar .nav-tab").forEach(el => el.classList.remove("active"));
     
-    // Hiển thị tab được chọn
     const targetTab = document.getElementById(tabId);
-    if (targetTab) {
-        targetTab.classList.add("active");
-    }
+    if (targetTab) targetTab.classList.add("active");
 
-    // Đổi màu nút được chọn
-    if (btnElement) {
-        btnElement.classList.add("active");
-    } else if (window.event && window.event.target) {
-        window.event.target.classList.add("active");
-    }
-    
-    // Nếu chuyển sang tab BTVN thì vẽ biểu đồ Donut
+    if (btnElement) btnElement.classList.add("active");
+
     if (tabId === "tab-homework") {
-        setTimeout(() => {
-            renderDonutChart();
-        }, 100);
+        setTimeout(() => { renderDonutChart(); }, 100);
     }
 }
 
-// DOM & LOGIN
+// LOGIN / LOGOUT
 const loginScreen = document.getElementById("login-screen");
 const appScreen = document.getElementById("app-screen");
 const loginForm = document.getElementById("login-form");
@@ -100,6 +87,14 @@ document.getElementById("logout-btn").addEventListener("click", () => {
     currentUser = null;
     appScreen.classList.add("hidden");
     loginScreen.classList.remove("hidden");
+});
+
+document.getElementById("guide-btn").addEventListener("click", () => {
+    renderRankGuideModal();
+    document.getElementById("guide-modal").classList.remove("hidden");
+});
+document.getElementById("close-modal").addEventListener("click", () => {
+    document.getElementById("guide-modal").classList.add("hidden");
 });
 
 function initDashboard() {
@@ -140,7 +135,6 @@ function renderStudentData() {
     if (!appData.students || !appData.students[selectedStudentKey]) return;
     const student = appData.students[selectedStudentKey];
 
-    // GAMIFICATION DATA
     document.getElementById("student-name").textContent = student.name;
     document.getElementById("current-xp").textContent = student.xp || 0;
     document.getElementById("streak-count").textContent = student.streak || 0;
@@ -209,12 +203,11 @@ function renderStudentData() {
     document.getElementById("input-learned").value = tuition.learned || 0;
     document.getElementById("input-planned").value = tuition.planned || 8;
 
-    // RENDER DANH SÁCH BTVN & VẼ BIỂU ĐỒ
     renderHomeworkList();
     renderDonutChart();
 }
 
-// BÀI TẬP VỀ NHÀ SYSTEM
+// BÀI TẬP VỀ NHÀ (CHO PHÉP NỘP CẢ PDF & ẢNH)
 function renderHomeworkList() {
     const student = appData.students[selectedStudentKey];
     const container = document.getElementById("hw-container");
@@ -255,15 +248,15 @@ function renderHomeworkList() {
             ${!hw.graded ? `
                 <div class="hw-actions">
                     ${currentUser.role === 'student' ? `
-                        <label style="font-size: 0.8rem; font-weight: bold;">Nộp bài làm (Tải ảnh bài làm):</label>
-                        <input type="file" id="submit-file-${index}" accept="image/*" style="font-size: 0.8rem; margin: 0.4rem 0;">
+                        <label style="font-size: 0.8rem; font-weight: bold;">Nộp bài làm (Tải file PDF hoặc Ảnh):</label>
+                        <input type="file" id="submit-file-${index}" accept="image/*,.pdf" style="font-size: 0.8rem; margin: 0.4rem 0;">
                         <button onclick="submitHomework(${index})" class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Nộp bài</button>
                     ` : ''}
 
                     <!-- PHẦN CHẤM ĐIỂM CỦA GIÁO VIÊN -->
                     ${currentUser.role === 'teacher' ? `
                         <div style="background: #ffffff; padding: 0.6rem; border-radius: 6px; margin-top: 0.5rem; border: 1px solid #e2e8f0;">
-                            ${hw.submissionImg ? `<p style="margin: 0 0 0.4rem 0;"><a href="${hw.submissionImg}" target="_blank" style="color: var(--primary); font-weight: bold; font-size: 0.8rem;">📸 Xem bài làm học sinh đã nộp</a></p>` : '<p style="font-size: 0.8rem; color: var(--text-muted);">Học sinh chưa tải ảnh bài làm.</p>'}
+                            ${hw.submissionImg ? `<p style="margin: 0 0 0.4rem 0;"><a href="${hw.submissionImg}" target="_blank" style="color: var(--primary); font-weight: bold; font-size: 0.8rem;">📁 Xem file bài làm học sinh đã nộp</a></p>` : '<p style="font-size: 0.8rem; color: var(--text-muted);">Học sinh chưa tải file bài làm.</p>'}
                             <div style="display: flex; gap: 0.4rem; align-items: center;">
                                 <input type="number" id="grade-score-${index}" min="0" max="10" step="0.5" placeholder="Nhập điểm..." style="width: 90px; padding: 0.3rem;">
                                 <button onclick="gradeHomework(${index})" class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Lưu điểm chấm</button>
@@ -307,13 +300,13 @@ document.getElementById("assign-hw-form")?.addEventListener("submit", (e) => {
     }
 });
 
-// HỌC SINH NỘP BÀI
+// HỌC SINH NỘP BÀI (PDF / ÁNH)
 function submitHomework(index) {
     const student = appData.students[selectedStudentKey];
     const fileInput = document.getElementById(`submit-file-${index}`);
 
     if (fileInput.files.length === 0) {
-        alert("Vui lòng chọn ảnh bài làm trước khi bấm nộp!");
+        alert("Vui lòng chọn file PDF hoặc Ảnh bài làm trước khi bấm nộp!");
         return;
     }
 
@@ -327,7 +320,7 @@ function submitHomework(index) {
     reader.readAsDataURL(fileInput.files[0]);
 }
 
-// GIÁO VIÊN CHẤM ĐIỂM BÀI TẬP (+1 XP NẾU >= 9.0)
+// CHẤM ĐIỂM BÀI TẬP
 function gradeHomework(index) {
     if (currentUser.role !== "teacher") return;
     const student = appData.students[selectedStudentKey];
@@ -342,7 +335,6 @@ function gradeHomework(index) {
     hw.graded = true;
     hw.score = scoreVal;
 
-    // TỰ ĐỘNG CỘNG 1 XP NẾU ĐẠT >= 9.0 ĐIỂM
     if (scoreVal >= 9.0) {
         student.xp = (student.xp || 0) + 1;
         const now = new Date();
@@ -360,7 +352,7 @@ function gradeHomework(index) {
     saveToFirebase();
 }
 
-// VẼ BIỂU ĐỒ TRÒN (DONUT CHART)
+// BIỂU ĐỒ DONUT
 function renderDonutChart() {
     const canvas = document.getElementById("hw-donut-chart");
     if (!canvas) return;
@@ -388,7 +380,6 @@ function renderDonutChart() {
     const percent = total > 0 ? Math.round((countDone / total) * 100) : 0;
     document.getElementById("donut-percent").textContent = `${percent}%`;
 
-    // CÁC GÓC VẼ
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (total === 0) {
         ctx.beginPath();
@@ -420,7 +411,7 @@ function renderDonutChart() {
     }
 }
 
-// QUẢN LÝ HỌC PHÍ & LỊCH HỌC
+// HỌC PHÍ & BÁO LỊCH BÙ
 function updateTuitionData() {
     if (currentUser.role !== "teacher") return;
     const learned = parseInt(document.getElementById("input-learned").value) || 0;
@@ -433,7 +424,6 @@ function updateTuitionData() {
     alert("Đã cập nhật dữ liệu học phí!");
 }
 
-// BÁO LỊCH HỌC BÙ TỪ GIÁO VIÊN
 document.getElementById("schedule-change-form")?.addEventListener("submit", (e) => {
     e.preventDefault();
     if (currentUser.role !== "teacher") return;
@@ -451,7 +441,7 @@ document.getElementById("schedule-change-form")?.addEventListener("submit", (e) 
     alert("Đã gửi thông báo lịch học đến học sinh!");
 });
 
-// THÊM & CỘNG XP VÀ KHÁC
+// CỘNG ĐIỂM & RENDER GUIDE
 function addXP(amount, reason) {
     if (currentUser.role !== "teacher") return;
     const student = appData.students[selectedStudentKey];
@@ -489,6 +479,20 @@ function resetMonthlyRank() {
     }
 }
 
+function renderRankGuideModal() {
+    const guideList = document.getElementById("rank-guide-list");
+    guideList.innerHTML = "";
+    RANKS.forEach(rank => {
+        const div = document.createElement("div");
+        div.className = "rank-card-guide";
+        div.innerHTML = `
+            <h4>${rank.name} (${rank.minXP} - ${rank.maxXP === 9999 ? '∞' : rank.maxXP} XP)</h4>
+            <p><b>📈 Điểm ưu tiên bài thi cuối tháng:</b> <code>+${rank.bonusExam} điểm</code></p>
+        `;
+        guideList.appendChild(div);
+    });
+}
+
 function redeemReward(cost, cardType, rewardName) {
     const student = appData.students[selectedStudentKey];
     if ((student.xp || 0) < cost) {
@@ -513,7 +517,6 @@ function useCard(cardType, amount, reason) {
     saveToFirebase();
 }
 
-// LƯU CLOUD
 function saveToFirebase() {
     db.ref("app_data").set(appData);
 }
