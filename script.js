@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
 
-:root {
+:root { 
     --primary: #6366f1; 
     --primary-hover: #4f46e5;
     --accent-gold: #f59e0b;
