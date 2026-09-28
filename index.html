@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Rank & Tích Điểm Toán Học</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- MÀN HÌNH ĐĂNG NHẬP -->
+    <div id="login-screen" class="login-container">
+        <div class="login-card">
+            <h2><i class="fas fa-gamepad"></i> Đăng Nhập Lớp Toán</h2>
+            <p>Đường Tới Cao Thủ Toán Học</p>
+            <form id="login-form">
+                <div class="input-group">
+                    <label>Tên đăng nhập</label>
+                    <input type="text" id="username" placeholder="Nhập tên đăng nhập..." required>
+                </div>
+                <div class="input-group">
+                    <label>Mật khẩu</label>
+                    <input type="password" id="password" placeholder="Nhập mật khẩu..." required>
+                </div>
+                <button type="submit" class="btn-primary">Đăng Nhập</button>
+            </form>
+            <p id="login-error" class="error-msg"></p>
+        </div>
+    </div>
+
+    <!-- DASHBOARD CHÍNH -->
+    <div id="app-screen" class="app-container hidden">
+        <!-- HEADER / NAVBAR -->
+        <header class="navbar">
+            <div class="logo">
+                <i class="fas fa-trophy"></i> TOÁN HỌC GAMIFICATION
+            </div>
+            <div class="user-info">
+                <button id="guide-btn" class="btn-guide"><i class="fas fa-scroll"></i> Cẩm Nang Rank</button>
+                <span id="role-badge" class="badge">Role</span>
+                <span id="user-display">Trình Yến Khanh</span>
+                <button id="logout-btn" class="btn-secondary"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+            </div>
+        </header>
+
+        <!-- CHỌN HỌC SINH (Dành riêng cho Giáo viên) -->
+        <div id="teacher-controls" class="teacher-panel hidden">
+            <label><i class="fas fa-user-cog"></i> <b>Chế độ Giáo viên:</b> Chọn học sinh:</label>
+            <select id="student-selector">
+                <option value="hung">Hưng</option>
+                <option value="nhio">Bạn Nhỏ</option>
+            </select>
+            <button onclick="resetMonthlyRank()" class="btn-reset-rank"><i class="fas fa-sync-alt"></i> Reset Rank Tháng Mới</button>
+        </div>
+
+        <main class="dashboard-grid">
+            <!-- THẺ THÔNG TIN RANK & XP HỌC SINH -->
+            <section class="card rank-card">
+                <div class="profile-header">
+                    <div class="avatar"><i class="fas fa-shield-alt"></i></div>
+                    <div>
+                        <h2 id="student-name">Hưng</h2>
+                        <span id="rank-badge" class="rank-tag">Rank Đồng</span>
+                    </div>
+                </div>
+
+                <div class="xp-progress-container">
+                    <div class="xp-text">
+                        <span>Điểm Tích Lũy Tháng Này: <strong id="current-xp">0</strong> XP</span>
+                        <span id="next-rank-text">Tiếp theo: 20 XP</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <div class="streak-box">
+                    🔥 Chuỗi tập trung (Streak): <b id="streak-count">0</b> buổi liên tiếp (+1 XP Bonus khi đạt 3 buổi)
+                </div>
+            </section>
+
+            <!-- BIỂU ĐỒ CỘT THỂ HIỆN HỆ THỐNG RANK TRUNG TÂM -->
+            <section class="card chart-card">
+                <h3><i class="fas fa-chart-bar"></i> Bảng Phân Cấp Rank Trong Tháng</h3>
+                <div class="rank-chart-container">
+                    <div class="bar-group" id="bar-dong">
+                        <div class="bar-fill" style="height: 20%;"></div>
+                        <span class="bar-label">🥉 Đồng</span>
+                        <small>0-19 XP</small>
+                    </div>
+                    <div class="bar-group" id="bar-bac">
+                        <div class="bar-fill" style="height: 40%;"></div>
+                        <span class="bar-label">🥈 Bạc</span>
+                        <small>20-44 XP</small>
+                    </div>
+                    <div class="bar-group" id="bar-vang">
+                        <div class="bar-fill" style="height: 60%;"></div>
+                        <span class="bar-label">🥇 Vàng</span>
+                        <small>45-74 XP</small>
+                    </div>
+                    <div class="bar-group" id="bar-bachkim">
+                        <div class="bar-fill" style="height: 80%;"></div>
+                        <span class="bar-label">💎 B.Kim</span>
+                        <small>75-109 XP</small>
+                    </div>
+                    <div class="bar-group" id="bar-kimcuong">
+                        <div class="bar-fill" style="height: 100%;"></div>
+                        <span class="bar-label">👑 K.Cương</span>
+                        <small>110+ XP</small>
+                    </div>
+                </div>
+                <p class="chart-status-text">Vị trí hiện tại của em: <b id="chart-current-rank">Rank Đồng</b></p>
+            </section>
+
+            <!-- TÍNH ĐIỂM THI CUỐI THÁNG -->
+            <section class="card score-card">
+                <h3><i class="fas fa-calculator"></i> Điểm Thi Cuối Tháng</h3>
+                <div class="score-details">
+                    <div class="score-item">
+                        <span>Điểm Bài Thi (70%):</span>
+                        <input type="number" id="test-score" min="0" max="10" step="0.5" disabled>
+                    </div>
+                    <div class="score-item">
+                        <span>Điểm XP Quy Đổi (30%):</span>
+                        <span id="converted-xp-score">0 / 10</span>
+                    </div>
+                    <div class="score-item">
+                        <span>Điểm Ưu Tiên Từ Rank:</span>
+                        <span id="rank-bonus-score">+0 điểm</span>
+                    </div>
+                    <div class="score-item total">
+                        <span>Điểm Tổng Kết (D_TK):</span>
+                        <strong id="final-score">0.0</strong>
+                    </div>
+                </div>
+                <div id="lego-reward" class="reward-status hidden">
+                    🎉 <b>Chúc mừng!</b> Em đủ điều kiện nhận <b>1 Bộ LEGO!</b> 🧩
+                </div>
+            </section>
+
+            <!-- BẢNG CẬP NHẬT ĐIỂM (DÀNH CHO GIÁO VIÊN) -->
+            <section id="action-panel" class="card action-card hidden">
+                <h3><i class="fas fa-edit"></i> Cập Nhật Điểm Nhanh (Giáo Viên)</h3>
+                <div class="btn-grid">
+                    <button onclick="addXP(1, 'Phản ứng nhanh (<3p)')" class="btn-action">+1 XP: Phản ứng nhanh (<3p)</button>
+                    <button onclick="addXP(1, 'Coaching: Hỏi/Trả lời mở')" class="btn-action">+1 XP: Hỏi/Trả lời mở</button>
+                    <button onclick="addXP(2, 'Coaching: Phát hiện cách 2/Lỗi sai')" class="btn-action">+2 XP: Phát hiện cách 2</button>
+                    <button onclick="addXP(1, 'Vượt rào cản Không Biết')" class="btn-action">+1 XP: Thử phân tích bài</button>
+                    <button onclick="addXP(1, 'Hoàn thành Bài Toán Nâng Cao')" class="btn-action">+1 XP: Toán Nâng Cao</button>
+                    <button onclick="addXP(1, 'BTVN Đầy đủ')" class="btn-action">+1 XP: BTVN Đầy đủ</button>
+                    <button onclick="addXP(-1, 'Nói Không Biết phản xạ')" class="btn-danger">-1 XP: Tố không biết</button>
+                    <button onclick="addXP(-1, 'Xao nhãng / Làm việc riêng')" class="btn-danger">-1 XP: Xao nhãng</button>
+                    <button onclick="addXP(-1, 'Vào lớp trễ quá 5 phút')" class="btn-danger">-1 XP: Vào trễ >5p</button>
+                </div>
+                <div class="custom-update">
+                    <label>Cập nhật điểm thi cuối tháng:</label>
+                    <input type="number" id="input-test-score" min="0" max="10" step="0.25" placeholder="Nhập điểm thi...">
+                    <button onclick="updateTestScore()" class="btn-primary">Lưu điểm thi</button>
+                </div>
+            </section>
+
+            <!-- LỊCH SỬ ĐIỂM -->
+            <section class="card history-card">
+                <h3><i class="fas fa-history"></i> Lịch Sử Tích Điểm</h3>
+                <ul id="history-list" class="history-list"></ul>
+            </section>
+
+            <!-- CỬA HÀNG ĐỔI ĐẶC QUYỀN -->
+            <section class="card shop-card">
+                <h3><i class="fas fa-store"></i> Cửa Hàng Đổi Đặc Quyền</h3>
+                <div class="shop-items">
+                    <div class="shop-item">
+                        <div>
+                            <strong>Thẻ "Miễn 1 Bài BTVN Nhỏ"</strong>
+                            <p>Đổi 10 XP</p>
+                        </div>
+                        <button onclick="redeemReward(10, 'Thẻ Miễn BTVN')" class="btn-shop">Đổi</button>
+                    </div>
+                    <div class="shop-item">
+                        <div>
+                            <strong>Thẻ "Gợi Ý Bài Khó"</strong>
+                            <p>Đổi 8 XP (Mở khóa từ Rank Bạc)</p>
+                        </div>
+                        <button onclick="redeemReward(8, 'Thẻ Gợi Ý Bài Khó')" class="btn-shop">Đổi</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL BẢNG HƯỚNG DẪN RANK -->
+    <div id="guide-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-award"></i> BẢNG RANK & QUYỀN LỢI TOÁN HỌC</h2>
+                <span id="close-modal" class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Điểm Rank và số buổi học sẽ được **reset lại vào mỗi đầu tháng**. Hãy thi đua thăng hạng để nhận ưu đãi!</p>
+                <div id="rank-guide-list"></div>
+
+                <div class="guide-note">
+                    <h4>💡 Cách tích lũy XP trong từng buổi:</h4>
+                    <ul>
+                        <li><b>+1 XP:</b> Trả lời đúng trong 3 phút, BTVN đầy đủ, thử phân tích đề thay vì nói "em không biết", hoàn thành bài toán nâng cao.</li>
+                        <li><b>+2 XP:</b> Tự phát hiện ra cách giải 2 hoặc phát hiện lỗi sai trong bài.</li>
+                        <li><b>+1 XP Bonus:</b> Giữ chuỗi 3 buổi học tập trung liên tiếp (Streak).</li>
+                        <li><b>-1 XP Phạt:</b> Xao nhãng, nói phản xạ "không biết", hoặc vào lớp trễ quá 5 phút.</li>
+                        <li><b>🧩 Phần thưởng Lego:</b> Đạt điểm Tổng kết tháng $D_{TK} \ge 9.0$.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
