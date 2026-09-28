@@ -170,27 +170,50 @@
             </section>
 
             <!-- CỬA HÀNG ĐỔI ĐẶC QUYỀN -->
-            <section class="card shop-card">
-                <h3><i class="fas fa-store"></i> Cửa Hàng Đổi Đặc Quyền</h3>
-                <div class="shop-items">
-                    <div class="shop-item">
-                        <div>
-                            <strong>Thẻ "Miễn 1 Bài BTVN Nhỏ"</strong>
-                            <p>Đổi 10 XP</p>
-                        </div>
-                        <button onclick="redeemReward(10, 'Thẻ Miễn BTVN')" class="btn-shop">Đổi</button>
-                    </div>
-                    <div class="shop-item">
-                        <div>
-                            <strong>Thẻ "Gợi Ý Bài Khó"</strong>
-                            <p>Đổi 8 XP (Mở khóa từ Rank Bạc)</p>
-                        </div>
-                        <button onclick="redeemReward(8, 'Thẻ Gợi Ý Bài Khó')" class="btn-shop">Đổi</button>
-                    </div>
-                </div>
-            </section>
-        </main>
+            <!-- CỬA HÀNG ĐỔI & QUẢN LÝ THẺ ĐẶC QUYỀN -->
+<section class="card shop-card">
+    <h3><i class="fas fa-id-card"></i> Kho Thẻ Đặc Quyền</h3>
+    
+    <!-- HIỂN THỊ SỐ THẺ SỞ HỮU -->
+    <div class="inventory-box">
+        <div class="inventory-item">
+            <span>🎫 Thẻ Gợi Ý Bài Khó:</span>
+            <strong id="card-hint-count">0</strong> thẻ
+        </div>
+        <div class="inventory-item">
+            <span>🎟️ Thẻ Miễn 1 Bài BTVN:</span>
+            <strong id="card-homework-count">0</strong> thẻ
+        </div>
     </div>
+
+    <!-- CỬA HÀNG ĐỔI THẺ (CHO HỌC SINH/GIÁO VIÊN) -->
+    <h4 class="sub-title"><i class="fas fa-shopping-cart"></i> Đổi Thẻ Bằng XP</h4>
+    <div class="shop-items">
+        <div class="shop-item">
+            <div>
+                <strong>Thẻ "Miễn 1 Bài BTVN Nhỏ"</strong>
+                <p>Đổi 10 XP</p>
+            </div>
+            <button onclick="redeemReward(10, 'homeworkCard', 'Thẻ Miễn BTVN')" class="btn-shop">Đổi</button>
+        </div>
+        <div class="shop-item">
+            <div>
+                <strong>Thẻ "Gợi Ý Bài Khó"</strong>
+                <p>Đổi 8 XP (Cần từ Rank Bạc)</p>
+            </div>
+            <button onclick="redeemReward(8, 'hintCard', 'Thẻ Gợi Ý Bài Khó')" class="btn-shop">Đổi</button>
+        </div>
+    </div>
+
+    <!-- QUẢN LÝ DÙNG THẺ (CHO GIÁO VIÊN) -->
+    <div id="teacher-card-control" class="teacher-card-panel hidden">
+        <h4 class="sub-title"><i class="fas fa-user-check"></i> Giáo Viên Duyệt Sử Dụng Thẻ</h4>
+        <div class="card-use-btns">
+            <button onclick="useCard('hintCard', -1, 'Dùng 1 Thẻ Gợi Ý Bài Khó')" class="btn-use-card">Dùng 1 Thẻ Gợi Ý (-1)</button>
+            <button onclick="useCard('homeworkCard', -1, 'Dùng 1 Thẻ Miễn BTVN')" class="btn-use-card">Dùng 1 Thẻ Miễn BTVN (-1)</button>
+        </div>
+    </div>
+</section>
 
     <!-- MODAL BẢNG HƯỚNG DẪN RANK -->
     <div id="guide-modal" class="modal hidden">
