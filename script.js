@@ -1,27 +1,14 @@
-// 🔴 THAY ĐOẠN NÀY BẰNG CẤU HÌNH FIREBASE CỦA BẠN (TỪ BƯỚC 1)
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
+// 1. CẤU HÌNH FIREBASE CHUẨN CHO DỰ ÁN
+const firebaseConfig = {
     apiKey: "AIzaSyDdyJR5uRBXYNY0pwsn0Z9HjQLQfZ7pUYM",
     authDomain: "mathematics-gamification.firebaseapp.com",
+    databaseURL: "https://mathematics-gamification-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "mathematics-gamification",
     storageBucket: "mathematics-gamification.firebasestorage.app",
     messagingSenderId: "80715844517",
     appId: "1:80715844517:web:01e542c95c6373e097364c",
     measurementId: "G-J6P9F1PVF7"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
+};
 
 // Khởi tạo Firebase
 if (!firebase.apps.length) {
@@ -29,7 +16,7 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-// CẤU HÌNH RANK
+// 2. CẤU HÌNH RANK
 const RANKS = [
     { id: "dong", name: "🥉 Rank Đồng (Tập Sự)", minXP: 0, maxXP: 19, benefit: "Mức khởi đầu học tập trong tháng.", bonusExam: 0 },
     { id: "bac", name: "🥈 Rank Bạc (Thợ Săn Dạng Toán)", minXP: 20, maxXP: 44, benefit: "Mở khóa 1 Thẻ Gợi Ý Bài Khó trong giờ học.", bonusExam: 0 },
@@ -38,6 +25,7 @@ const RANKS = [
     { id: "kimcuong", name: "👑 Rank Kim Cương / Cao Thủ", minXP: 110, maxXP: 9999, benefit: "Nhận Bằng Chứng Nhận + Nhận bộ LEGO (khi DTK >= 9.0).", bonusExam: 1.0 }
 ];
 
+// 3. DỮ LIỆU BAN ĐẦU
 const initialData = {
     accounts: {
         admin: { password: "123456", role: "teacher", name: "Trình Yến Khanh" },
@@ -54,11 +42,11 @@ let appData = initialData;
 let currentUser = null;
 let selectedStudentKey = "hung";
 
-// LẮNG NGHE DỮ LIỆU ĐỒNG BỘ REALTIME TỪ FIREBASE
+// 4. LẮNG NGHE DỮ LIỆU ĐỒNG BỘ REALTIME TỪ FIREBASE (KHÔNG RESET ĐIỂM CŨ)
 db.ref("app_data").on("value", (snapshot) => {
     const data = snapshot.val();
     if (data && data.students) {
-        appData = data; // Chỉ cập nhật khi Firebase thực sự có dữ liệu
+        appData = data;
         if (currentUser) {
             renderStudentData();
         }
@@ -132,6 +120,7 @@ studentSelector.addEventListener("change", (e) => {
     renderStudentData();
 });
 
+// RENDER DỮ LIỆU
 function renderStudentData() {
     if (!appData.students || !appData.students[selectedStudentKey]) return;
     const student = appData.students[selectedStudentKey];
@@ -271,7 +260,7 @@ function redeemReward(cost, rewardName) {
     }
 }
 
-// LƯU TRỰC TIẾP LÊN FIREBASE CLOUD
+// LƯU DỮ LIỆU TRỰC TIẾP LÊN FIREBASE CLOUD
 function saveToFirebase() {
     db.ref("app_data").set(appData);
 }
