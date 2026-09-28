@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
 
 :root {
     --primary: #6366f1; 
@@ -12,19 +12,20 @@
     --card-bg: #ffffff;
     --text-main: #1e293b;
     --text-muted: #64748b;
-    --radius-lg: 16px;
-    --radius-md: 10px;
+    --radius-lg: 18px;
+    --radius-md: 12px;
     --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
 }
 
 body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Nunito', sans-serif;
     background-color: var(--bg-body);
     color: var(--text-main);
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
 }
 
 .hidden { display: none !important; }
@@ -52,12 +53,14 @@ body {
 .login-card h2 {
     color: var(--primary);
     font-size: 1.6rem;
+    font-weight: 800;
     margin-bottom: 0.2rem;
 }
 
 .login-card p {
     color: var(--text-muted);
     font-size: 0.9rem;
+    font-weight: 600;
     margin-bottom: 1.8rem;
 }
 
@@ -69,7 +72,7 @@ body {
 .input-group label {
     display: block;
     font-size: 0.85rem;
-    font-weight: 700;
+    font-weight: 800;
     margin-bottom: 0.4rem;
     color: var(--text-main);
 }
@@ -80,6 +83,7 @@ body {
     border: 2px solid #e2e8f0;
     border-radius: var(--radius-md);
     font-size: 0.95rem;
+    font-family: inherit;
     box-sizing: border-box;
     transition: all 0.2s;
 }
@@ -93,7 +97,7 @@ body {
 .error-msg {
     color: var(--accent-red);
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
     margin-top: 0.8rem;
 }
 
@@ -131,7 +135,7 @@ body {
     padding: 0.3rem 0.8rem;
     border-radius: 20px;
     font-size: 0.8rem;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .btn-guide {
@@ -141,8 +145,9 @@ body {
     padding: 0.5rem 1.1rem;
     border-radius: 20px;
     cursor: pointer;
-    font-weight: 700;
+    font-weight: 800;
     font-size: 0.85rem;
+    font-family: inherit;
     transition: transform 0.2s, background 0.2s;
 }
 
@@ -213,6 +218,7 @@ body {
     margin: 0;
     font-size: 0.9rem;
     color: var(--primary);
+    font-weight: 800;
 }
 
 .notif-list {
@@ -226,12 +232,12 @@ body {
 .notif-item {
     padding: 0.8rem 1rem;
     border-bottom: 1px solid #f1f5f9;
-    font-size: 0.83rem;
+    font-size: 0.85rem;
 }
 
 .notif-item .notif-time {
     display: block;
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     color: var(--text-muted);
     margin-top: 0.3rem;
 }
@@ -240,7 +246,7 @@ body {
     padding: 1.5rem;
     text-align: center;
     color: var(--text-muted);
-    font-size: 0.85rem;
+    font-size: 0.88rem;
 }
 
 /* SIDEBAR DỌC */
@@ -302,8 +308,9 @@ body {
     display: flex;
     align-items: center;
     gap: 0.9rem;
-    font-size: 0.92rem;
-    font-weight: 700;
+    font-size: 0.95rem;
+    font-weight: 800;
+    font-family: inherit;
     cursor: pointer;
     transition: all 0.2s;
     white-space: nowrap;
@@ -362,7 +369,8 @@ body {
     padding: 0.4rem 0.8rem;
     border-radius: var(--radius-md);
     border: 1px solid #a5b4fc;
-    font-weight: 700;
+    font-weight: 800;
+    font-family: inherit;
     color: var(--primary);
 }
 
@@ -373,7 +381,8 @@ body {
     padding: 0.5rem 1rem;
     border-radius: var(--radius-md);
     cursor: pointer;
-    font-weight: 700;
+    font-weight: 800;
+    font-family: inherit;
     margin-left: auto;
     transition: opacity 0.2s;
 }
@@ -405,7 +414,8 @@ body {
 
 .card h3 {
     margin-top: 0;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
+    font-weight: 800;
     color: var(--text-main);
     display: flex;
     align-items: center;
@@ -437,7 +447,8 @@ body {
 
 .profile-header h2 {
     margin: 0 0 0.3rem 0;
-    font-size: 1.3rem;
+    font-size: 1.35rem;
+    font-weight: 800;
 }
 
 .rank-tag {
@@ -446,7 +457,7 @@ body {
     padding: 0.3rem 0.9rem;
     border-radius: 20px;
     font-weight: 800;
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
 }
 
@@ -455,8 +466,8 @@ body {
 .xp-text {
     display: flex;
     justify-content: space-between;
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.88rem;
+    font-weight: 700;
     color: var(--text-muted);
     margin-bottom: 0.4rem;
 }
@@ -478,10 +489,10 @@ body {
 .streak-box {
     background: #fef3c7;
     color: #92400e;
-    padding: 0.7rem;
+    padding: 0.75rem;
     border-radius: var(--radius-md);
-    font-size: 0.85rem;
-    font-weight: 700;
+    font-size: 0.88rem;
+    font-weight: 800;
     border-left: 4px solid var(--accent-gold);
 }
 
@@ -519,20 +530,21 @@ body {
 }
 
 .bar-label {
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-size: 0.78rem;
+    font-weight: 800;
     margin-top: 0.5rem;
 }
 
 .bar-group small {
-    font-size: 0.65rem;
+    font-size: 0.68rem;
+    font-weight: 700;
     color: var(--text-muted);
 }
 
 .chart-status-text {
     text-align: center;
     margin: 0;
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     color: var(--text-muted);
 }
 
@@ -544,13 +556,15 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.6rem;
-    font-size: 0.9rem;
+    font-size: 0.92rem;
+    font-weight: 700;
 }
 
 .score-item.total {
     border-top: 2px dashed #e2e8f0;
     padding-top: 0.8rem;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
+    font-weight: 800;
     color: var(--primary);
 }
 
@@ -561,7 +575,8 @@ body {
     border-radius: var(--radius-md);
     text-align: center;
     margin-top: 1rem;
-    font-size: 0.9rem;
+    font-size: 0.92rem;
+    font-weight: 800;
 }
 
 /* ACTION BUTTONS (GIÁO VIÊN) */
@@ -573,11 +588,12 @@ body {
 }
 
 .btn-action, .btn-danger {
-    padding: 0.6rem 0.8rem;
+    padding: 0.65rem 0.8rem;
     border-radius: var(--radius-md);
     cursor: pointer;
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-size: 0.82rem;
+    font-weight: 800;
+    font-family: inherit;
     text-align: left;
     transition: all 0.2s;
 }
@@ -615,6 +631,7 @@ body {
     padding: 0.5rem;
     border: 1px solid #cbd5e1;
     border-radius: var(--radius-md);
+    font-family: inherit;
 }
 
 /* BUTTONS CHUNG */
@@ -625,7 +642,8 @@ body {
     padding: 0.75rem 1.2rem;
     border-radius: var(--radius-md);
     cursor: pointer;
-    font-weight: 700;
+    font-weight: 800;
+    font-family: inherit;
     transition: background 0.2s;
 }
 
@@ -639,16 +657,18 @@ body {
     border-radius: 20px;
     cursor: pointer;
     font-size: 0.85rem;
+    font-family: inherit;
 }
 
 .btn-shop {
     background: var(--accent-green);
     color: white;
     border: none;
-    padding: 0.4rem 0.9rem;
+    padding: 0.45rem 0.95rem;
     border-radius: 20px;
     cursor: pointer;
-    font-weight: 700;
+    font-weight: 800;
+    font-family: inherit;
 }
 
 /* HISTORY LOG & SHOP */
@@ -663,7 +683,8 @@ body {
 .history-list li {
     padding: 0.6rem 0;
     border-bottom: 1px solid #f1f5f9;
-    font-size: 0.82rem;
+    font-size: 0.85rem;
+    font-weight: 600;
     display: flex;
     justify-content: space-between;
 }
@@ -679,7 +700,7 @@ body {
     padding: 0.8rem 0;
 }
 
-.shop-item p { margin: 0; font-size: 0.78rem; color: var(--text-muted); }
+.shop-item p { margin: 0; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
 
 /* MODAL HƯỚNG DẪN */
 .modal {
@@ -699,7 +720,7 @@ body {
     border-bottom: 2px solid #f1f5f9; padding-bottom: 0.8rem;
 }
 
-.modal-header h2 { font-size: 1.1rem; color: var(--primary); margin: 0; }
+.modal-header h2 { font-size: 1.15rem; font-weight: 800; color: var(--primary); margin: 0; }
 .close-btn { font-size: 1.6rem; cursor: pointer; color: var(--text-muted); }
 
 .rank-card-guide {
@@ -707,15 +728,15 @@ body {
     border-radius: var(--radius-md); padding: 0.8rem; margin: 0.8rem 0;
 }
 
-.rank-card-guide h4 { margin: 0 0 0.3rem 0; color: var(--primary); font-size: 0.95rem; }
-.rank-card-guide p { margin: 0.2rem 0; font-size: 0.85rem; }
+.rank-card-guide h4 { margin: 0 0 0.3rem 0; color: var(--primary); font-size: 0.98rem; font-weight: 800; }
+.rank-card-guide p { margin: 0.2rem 0; font-size: 0.88rem; font-weight: 600; }
 
 .guide-note {
     background: #e0e7ff; border-radius: var(--radius-md); padding: 1rem; margin-top: 1rem;
 }
 
-.guide-note h4 { margin: 0 0 0.4rem 0; color: var(--primary); font-size: 0.9rem; }
-.guide-note ul { margin: 0; padding-left: 1.2rem; font-size: 0.82rem; line-height: 1.5; }
+.guide-note h4 { margin: 0 0 0.4rem 0; color: var(--primary); font-size: 0.92rem; font-weight: 800; }
+.guide-note ul { margin: 0; padding-left: 1.2rem; font-size: 0.85rem; line-height: 1.5; font-weight: 600; }
 
 /* KHO THẺ & BẢNG DUYỆT THẺ */
 .inventory-box {
@@ -728,17 +749,18 @@ body {
 }
 
 .inventory-item {
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.88rem;
+    font-weight: 700;
 }
 
 .inventory-item strong {
     color: var(--primary);
-    font-size: 1rem;
+    font-size: 1.05rem;
 }
 
 .sub-title {
-    font-size: 0.9rem;
+    font-size: 0.92rem;
+    font-weight: 800;
     margin: 1rem 0 0.5rem 0;
     color: var(--text-muted);
 }
@@ -761,8 +783,9 @@ body {
     padding: 0.5rem 0.8rem;
     border-radius: var(--radius-md);
     cursor: pointer;
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-size: 0.82rem;
+    font-weight: 800;
+    font-family: inherit;
     transition: all 0.2s;
 }
 
@@ -770,7 +793,7 @@ body {
     background: #ffedd5;
 }
 
-/* LAYOUT TRANG CHUNG */
+/* LAYOUT TRANG BÀI TẬP & HỌC PHÍ CHUNG */
 .page-container {
     padding: 1.8rem;
     max-width: 1300px;
@@ -792,7 +815,8 @@ body {
 
 .page-header-banner h2 {
     margin: 0 0 0.4rem 0;
-    font-size: 1.4rem;
+    font-size: 1.45rem;
+    font-weight: 800;
     display: flex;
     align-items: center;
     gap: 0.6rem;
@@ -800,8 +824,9 @@ body {
 
 .page-header-banner p {
     margin: 0;
-    font-size: 0.88rem;
-    opacity: 0.9;
+    font-size: 0.9rem;
+    font-weight: 600;
+    opacity: 0.95;
 }
 
 /* TRANG BÀI TẬP VỀ NHÀ */
@@ -850,13 +875,14 @@ body {
 
 .donut-text span {
     display: block;
-    font-size: 1.6rem;
-    font-weight: 800;
+    font-size: 1.65rem;
+    font-weight: 900;
     color: var(--primary);
 }
 
 .donut-text small {
-    font-size: 0.7rem;
+    font-size: 0.72rem;
+    font-weight: 700;
     color: var(--text-muted);
 }
 
@@ -865,8 +891,8 @@ body {
     flex-direction: column;
     gap: 0.5rem;
     margin-top: 1rem;
-    font-size: 0.82rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 700;
 }
 
 .legend-item {
@@ -891,8 +917,8 @@ body {
 
 .form-group label {
     display: block;
-    font-size: 0.85rem;
-    font-weight: 700;
+    font-size: 0.88rem;
+    font-weight: 800;
     margin-bottom: 0.4rem;
 }
 
@@ -903,7 +929,7 @@ body {
     border-radius: var(--radius-md);
     box-sizing: border-box;
     font-family: inherit;
-    font-size: 0.88rem;
+    font-size: 0.9rem;
 }
 
 .hw-items-container {
@@ -935,13 +961,14 @@ body {
 
 .hw-header-row h4 {
     margin: 0 0 0.3rem 0;
-    font-size: 1rem;
+    font-size: 1.05rem;
+    font-weight: 800;
 }
 
 .hw-status-badge {
-    padding: 0.25rem 0.6rem;
+    padding: 0.25rem 0.65rem;
     border-radius: 12px;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 800;
     color: white;
     text-transform: uppercase;
@@ -952,10 +979,29 @@ body {
 .status-late .hw-status-badge { background: var(--accent-red); }
 
 .hw-deadline-text {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
+    font-weight: 700;
     color: var(--text-muted);
     margin-bottom: 0.8rem;
 }
+
+.btn-pdf-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 800;
+    margin-bottom: 0.8rem;
+    transition: background 0.2s;
+}
+
+.btn-pdf-download:hover { background: #fca5a5; }
 
 .hw-file-upload-box {
     background: white;
@@ -1005,14 +1051,14 @@ body {
 
 .stat-title {
     display: block;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     color: var(--text-muted);
-    font-weight: 600;
+    font-weight: 700;
     margin-bottom: 0.3rem;
 }
 
 .stat-value {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 800;
 }
 
@@ -1031,6 +1077,7 @@ body {
     font-weight: 800;
     border-radius: 6px;
     border: 1px solid #cbd5e1;
+    font-family: inherit;
 }
 
 .tuition-notice-box {
@@ -1038,10 +1085,11 @@ body {
     color: #0369a1;
     padding: 0.9rem;
     border-radius: var(--radius-md);
-    font-size: 0.8rem;
+    font-size: 0.82rem;
+    font-weight: 600;
 }
 
-.tuition-notice-box h4 { margin: 0 0 0.4rem 0; }
+.tuition-notice-box h4 { margin: 0 0 0.4rem 0; font-weight: 800; }
 .tuition-notice-box p { margin: 0.2rem 0; }
 
 .calendar-header {
@@ -1056,7 +1104,8 @@ body {
 .schedule-fixed-tag {
     background: #fef3c7;
     color: #92400e;
-    font-size: 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 800;
     padding: 0.3rem 0.6rem;
     border-radius: 8px;
     border: 1px solid #fde68a;
@@ -1067,7 +1116,7 @@ body {
     grid-template-columns: repeat(7, 1fr);
     text-align: center;
     font-weight: 800;
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     color: var(--text-muted);
     margin-bottom: 0.5rem;
 }
@@ -1086,8 +1135,8 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 0.82rem;
-    font-weight: 700;
+    font-size: 0.85rem;
+    font-weight: 800;
     position: relative;
 }
 
@@ -1107,8 +1156,8 @@ body {
 }
 
 .cal-day .class-dot {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     margin-top: 2px;
 }
