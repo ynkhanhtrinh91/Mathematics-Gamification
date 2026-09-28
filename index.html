@@ -41,6 +41,22 @@
                 <i class="fas fa-trophy"></i> TOÁN HỌC GAMIFICATION
             </div>
             <div class="user-info">
+                <!-- THÔNG BÁO CHUÔNG -->
+                <div class="notif-wrapper">
+                    <button id="notif-bell-btn" class="btn-notif-bell">
+                        <i class="fas fa-bell"></i>
+                        <span id="notif-badge" class="notif-badge hidden">0</span>
+                    </button>
+                    <div id="notif-dropdown" class="notif-dropdown hidden">
+                        <div class="notif-header">
+                            <h4><i class="fas fa-bell"></i> Thông Báo Bổ Sung & Lịch Học</h4>
+                        </div>
+                        <ul id="notif-list" class="notif-list">
+                            <li class="empty-notif">Không có thông báo mới</li>
+                        </ul>
+                    </div>
+                </div>
+
                 <button id="guide-btn" class="btn-guide"><i class="fas fa-scroll"></i> Cẩm Nang Rank</button>
                 <span id="role-badge" class="badge">Role</span>
                 <span id="user-display">Trình Yến Khanh</span>
@@ -48,168 +64,343 @@
             </div>
         </header>
 
-        <!-- CHỌN HỌC SINH (Dành riêng cho Giáo viên) -->
-        <div id="teacher-controls" class="teacher-panel hidden">
-            <label><i class="fas fa-user-cog"></i> <b>Chế độ Giáo viên:</b> Chọn học sinh:</label>
-            <select id="student-selector">
-                <option value="hung">Hưng</option>
-                <option value="nhio">Bạn Nhỏ</option>
-            </select>
-            <button onclick="resetMonthlyRank()" class="btn-reset-rank"><i class="fas fa-sync-alt"></i> Reset Rank Tháng Mới</button>
+        <!-- THANH NAV SIDEBAR DỌC (CÓ THỂ THU RA THU VÀO) -->
+        <aside id="sidebar" class="sidebar">
+            <button id="sidebar-toggle-btn" class="sidebar-toggle" title="Thu gọn / Mở rộng">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-tab="tab-rank">
+                    <i class="fas fa-trophy"></i>
+                    <span class="nav-text">Bảng Rank</span>
+                </button>
+                <button class="nav-item" data-tab="tab-homework">
+                    <i class="fas fa-book-open"></i>
+                    <span class="nav-text">Bài Tập Về Nhà</span>
+                </button>
+                <button class="nav-item" data-tab="tab-tuition">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span class="nav-text">Học Phí & Lịch</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- KHU VỰC NỘI DUNG CHÍNH NẰM BÊN PHẢI SIDEBAR -->
+        <div class="main-wrapper">
+            <!-- CHỌN HỌC SINH (Dành riêng cho Giáo viên) -->
+            <div id="teacher-controls" class="teacher-panel hidden">
+                <label><i class="fas fa-user-cog"></i> <b>Chế độ Giáo viên:</b> Chọn học sinh:</label>
+                <select id="student-selector">
+                    <option value="hung">Hưng</option>
+                    <option value="nhio">Bạn Nhỏ</option>
+                </select>
+                <button onclick="resetMonthlyRank()" class="btn-reset-rank"><i class="fas fa-sync-alt"></i> Reset Rank Tháng Mới</button>
+            </div>
+
+            <!-- TAB 1: BẢNG RANK & ĐIỂM TÍCH LŨY (GIỮ NGUYÊN HOÀN TOÀN) -->
+            <div id="tab-rank" class="tab-content active">
+                <main class="dashboard-grid">
+                    <!-- THẺ THÔNG TIN RANK & XP HỌC SINH -->
+                    <section class="card rank-card">
+                        <div class="profile-header">
+                            <div class="avatar"><i class="fas fa-shield-alt"></i></div>
+                            <div>
+                                <h2 id="student-name">Hưng</h2>
+                                <span id="rank-badge" class="rank-tag">Rank Đồng</span>
+                            </div>
+                        </div>
+
+                        <div class="xp-progress-container">
+                            <div class="xp-text">
+                                <span>Điểm Tích Lũy Tháng Này: <strong id="current-xp">0</strong> XP</span>
+                                <span id="next-rank-text">Tiếp theo: 20 XP</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div id="progress-fill" class="progress-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="streak-box">
+                            🔥 Chuỗi tập trung (Streak): <b id="streak-count">0</b> buổi liên tiếp (+1 XP Bonus khi đạt 3 buổi)
+                        </div>
+                    </section>
+
+                    <!-- BIỂU ĐỒ CỘT THỂ HIỆN HỆ THỐNG RANK TRUNG TÂM -->
+                    <section class="card chart-card">
+                        <h3><i class="fas fa-chart-bar"></i> Bảng Phân Cấp Rank Trong Tháng</h3>
+                        <div class="rank-chart-container">
+                            <div class="bar-group" id="bar-dong">
+                                <div class="bar-fill" style="height: 20%;"></div>
+                                <span class="bar-label">🥉 Đồng</span>
+                                <small>0-19 XP</small>
+                            </div>
+                            <div class="bar-group" id="bar-bac">
+                                <div class="bar-fill" style="height: 40%;"></div>
+                                <span class="bar-label">🥈 Bạc</span>
+                                <small>20-44 XP</small>
+                            </div>
+                            <div class="bar-group" id="bar-vang">
+                                <div class="bar-fill" style="height: 60%;"></div>
+                                <span class="bar-label">🥇 Vàng</span>
+                                <small>45-74 XP</small>
+                            </div>
+                            <div class="bar-group" id="bar-bachkim">
+                                <div class="bar-fill" style="height: 80%;"></div>
+                                <span class="bar-label">💎 B.Kim</span>
+                                <small>75-109 XP</small>
+                            </div>
+                            <div class="bar-group" id="bar-kimcuong">
+                                <div class="bar-fill" style="height: 100%;"></div>
+                                <span class="bar-label">👑 K.Cương</span>
+                                <small>110+ XP</small>
+                            </div>
+                        </div>
+                        <p class="chart-status-text">Vị trí hiện tại của em: <b id="chart-current-rank">Rank Đồng</b></p>
+                    </section>
+
+                    <!-- TÍNH ĐIỂM THI CUỐI THÁNG -->
+                    <section class="card score-card">
+                        <h3><i class="fas fa-calculator"></i> Điểm Thi Cuối Tháng</h3>
+                        <div class="score-details">
+                            <div class="score-item">
+                                <span>Điểm Bài Thi (70%):</span>
+                                <input type="number" id="test-score" min="0" max="10" step="0.5" disabled style="width: 60px; text-align: center; font-weight: bold;">
+                            </div>
+                            <div class="score-item">
+                                <span>Điểm XP Quy Đổi (30%):</span>
+                                <span id="converted-xp-score">0 / 10</span>
+                            </div>
+                            <div class="score-item">
+                                <span>Điểm Ưu Tiên Từ Rank:</span>
+                                <span id="rank-bonus-score">+0 điểm</span>
+                            </div>
+                            <div class="score-item total">
+                                <span>Điểm Tổng Kết (D_TK):</span>
+                                <strong id="final-score">0.0</strong>
+                            </div>
+                        </div>
+                        <div id="lego-reward" class="reward-status hidden">
+                            🎉 <b>Chúc mừng!</b> Em đủ điều kiện nhận <b>1 Bộ LEGO!</b> 🧩
+                        </div>
+                    </section>
+
+                    <!-- BẢNG CẬP NHẬT ĐIỂM (GIÁO VIÊN) -->
+                    <section id="action-panel" class="card action-card hidden">
+                        <h3><i class="fas fa-edit"></i> Cập Nhật Điểm Nhanh (Giáo Viên)</h3>
+                        <div class="btn-grid">
+                            <button onclick="addXP(1, 'Phản ứng nhanh (<3p)')" class="btn-action">+1 XP: Phản ứng nhanh (<3p)</button>
+                            <button onclick="addXP(1, 'Coaching: Hỏi/Trả lời mở')" class="btn-action">+1 XP: Hỏi/Trả lời mở</button>
+                            <button onclick="addXP(2, 'Coaching: Phát hiện cách 2/Lỗi sai')" class="btn-action">+2 XP: Phát hiện cách 2</button>
+                            <button onclick="addXP(1, 'Vượt rào cản Không Biết')" class="btn-action">+1 XP: Thử phân tích bài</button>
+                            <button onclick="addXP(1, 'Hoàn thành Bài Toán Nâng Cao')" class="btn-action">+1 XP: Toán Nâng Cao</button>
+                            <button onclick="addXP(1, 'BTVN Đầy đủ')" class="btn-action">+1 XP: BTVN Đầy đủ</button>
+                            <button onclick="addXP(-1, 'Nói Không Biết phản xạ')" class="btn-danger">-1 XP: Tố không biết</button>
+                            <button onclick="addXP(-1, 'Xao nhãng / Làm việc riêng')" class="btn-danger">-1 XP: Xao nhãng</button>
+                            <button onclick="addXP(-1, 'Vào lớp trễ quá 5 phút')" class="btn-danger">-1 XP: Vào trễ >5p</button>
+                        </div>
+                        <div class="custom-update">
+                            <input type="number" id="input-test-score" min="0" max="10" step="0.25" placeholder="Nhập điểm thi...">
+                            <button onclick="updateTestScore()" class="btn-primary">Lưu điểm thi</button>
+                        </div>
+                    </section>
+
+                    <!-- LỊCH SỬ ĐIỂM -->
+                    <section class="card history-card">
+                        <h3><i class="fas fa-history"></i> Lịch Sử Tích Điểm</h3>
+                        <ul id="history-list" class="history-list"></ul>
+                    </section>
+
+                    <!-- CỬA HÀNG ĐỔI & QUẢN LÝ THẺ ĐẶC QUYỀN -->
+                    <section class="card shop-card">
+                        <h3><i class="fas fa-id-card"></i> Kho Thẻ Đặc Quyền</h3>
+                        <div class="inventory-box">
+                            <div class="inventory-item">
+                                <span>🎫 Thẻ Gợi Ý Bài Khó:</span>
+                                <strong id="card-hint-count">0</strong> thẻ
+                            </div>
+                            <div class="inventory-item">
+                                <span>🎟️ Thẻ Miễn 1 Bài BTVN:</span>
+                                <strong id="card-homework-count">0</strong> thẻ
+                            </div>
+                        </div>
+
+                        <h4 class="sub-title"><i class="fas fa-shopping-cart"></i> Đổi Thẻ Bằng XP</h4>
+                        <div class="shop-items">
+                            <div class="shop-item">
+                                <div>
+                                    <strong>Thẻ "Miễn 1 Bài BTVN Nhỏ"</strong>
+                                    <p>Đổi 10 XP</p>
+                                </div>
+                                <button onclick="redeemReward(10, 'homeworkCard', 'Thẻ Miễn BTVN')" class="btn-shop">Đổi</button>
+                            </div>
+                            <div class="shop-item">
+                                <div>
+                                    <strong>Thẻ "Gợi Ý Bài Khó"</strong>
+                                    <p>Đổi 8 XP (Cần từ Rank Bạc)</p>
+                                </div>
+                                <button onclick="redeemReward(8, 'hintCard', 'Thẻ Gợi Ý Bài Khó')" class="btn-shop">Đổi</button>
+                            </div>
+                        </div>
+
+                        <div id="teacher-card-control" class="teacher-card-panel hidden">
+                            <h4 class="sub-title"><i class="fas fa-user-check"></i> Giáo Viên Duyệt Sử Dụng Thẻ</h4>
+                            <div class="card-use-btns">
+                                <button onclick="useCard('hintCard', -1, 'Dùng 1 Thẻ Gợi Ý Bài Khó')" class="btn-use-card">Dùng 1 Thẻ Gợi Ý (-1)</button>
+                                <button onclick="useCard('homeworkCard', -1, 'Dùng 1 Thẻ Miễn BTVN')" class="btn-use-card">Dùng 1 Thẻ Miễn BTVN (-1)</button>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+            </div>
+
+            <!-- TAB 2: QUẢN LÝ BÀI TẬP VỀ NHÀ -->
+            <div id="tab-homework" class="tab-content">
+                <main class="page-container">
+                    <div class="page-header-banner">
+                        <h2><i class="fas fa-tasks"></i> QUẢN LÝ BÀI TẬP VỀ NHÀ</h2>
+                        <p>Theo dõi tiến độ, nộp bài PDF và nhận thưởng XP khi đạt điểm cao!</p>
+                    </div>
+
+                    <div class="hw-layout-grid">
+                        <!-- THỐNG KÊ BIỂU ĐỒ VÒNG TRÒN -->
+                        <section class="card hw-chart-card">
+                            <h3><i class="fas fa-chart-pie"></i> Tỉ Lệ Hoàn Thành BTVN</h3>
+                            <div class="donut-chart-wrapper">
+                                <svg viewBox="0 0 36 36" class="donut-svg">
+                                    <!-- Nền xám -->
+                                    <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <!-- Đã làm (Xanh) -->
+                                    <path id="donut-done" class="circle-done" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <!-- Đang tới hạn (Cam) -->
+                                    <path id="donut-pending" class="circle-pending" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <!-- Quá hạn (Đỏ) -->
+                                    <path id="donut-late" class="circle-late" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                </svg>
+                                <div class="donut-text">
+                                    <span id="donut-percentage">0%</span>
+                                    <small>Đã hoàn thành</small>
+                                </div>
+                            </div>
+                            <div class="chart-legend-box">
+                                <div class="legend-item"><span class="dot done"></span> Đã nộp / Đúng hạn</div>
+                                <div class="legend-item"><span class="dot pending"></span> Đang tới hạn</div>
+                                <div class="legend-item"><span class="dot late"></span> Trễ / Quá hạn</div>
+                            </div>
+                        </section>
+
+                        <!-- FORM GIAO BÀI TẬP (GIÁO VIÊN) -->
+                        <section id="teacher-hw-create" class="card teacher-hw-card hidden">
+                            <h3><i class="fas fa-plus-circle"></i> Giáo Viên Giao Bài Tập Mới</h3>
+                            <form id="create-hw-form">
+                                <div class="form-group">
+                                    <label>Tên / Tiêu đề bài tập:</label>
+                                    <input type="text" id="hw-title" placeholder="VD: BTVN Bài 3 - Phương trình bậc 2..." required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Ghi chú / Yêu cầu thêm:</label>
+                                    <textarea id="hw-desc" rows="2" placeholder="Ghi chú thêm cho học sinh..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Hạn nộp (Ngày & Giờ):</label>
+                                    <input type="datetime-local" id="hw-deadline" required>
+                                </div>
+                                <button type="submit" class="btn-primary" style="width: 100%;"><i class="fas fa-paper-plane"></i> Giao Bài Tập</button>
+                            </form>
+                        </section>
+
+                        <!-- DANH SÁCH BÀI TẬP VỀ NHÀ -->
+                        <section class="card hw-list-card">
+                            <h3><i class="fas fa-list-alt"></i> Danh Sách Bài Tập Về Nhà</h3>
+                            <div id="hw-list" class="hw-items-container">
+                                <!-- Render qua JS -->
+                            </div>
+                        </section>
+                    </div>
+                </main>
+            </div>
+
+            <!-- TAB 3: NHẮC NHỎ HỌC PHÍ & LỊCH HỌC BỔ SUNG -->
+            <div id="tab-tuition" class="tab-content">
+                <main class="page-container">
+                    <div class="page-header-banner alt-banner">
+                        <h2><i class="fas fa-wallet"></i> HỌC PHÍ & LỊCH HỌC TRONG THÁNG</h2>
+                        <p>Theo dõi học phí tự động 150.000 VNĐ/buổi và nhận thông báo buổi học bù tức thì!</p>
+                    </div>
+
+                    <div class="tuition-layout-grid">
+                        <!-- THÔNG TIN TÍNH HỌC PHÍ -->
+                        <section class="card tuition-info-card">
+                            <h3><i class="fas fa-file-invoice-dollar"></i> Tổng Quan Học Phí (Tính vào ngày 1 hàng tháng)</h3>
+                            <div class="tuition-stats-grid">
+                                <div class="stat-box">
+                                    <span class="stat-title">Đơn giá / Buổi</span>
+                                    <span class="stat-value text-primary">150.000đ</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-title">Dự kiến tháng này</span>
+                                    <div class="stat-value-group">
+                                        <input type="number" id="planned-sessions-input" value="8" min="1" max="30">
+                                        <span>buổi</span>
+                                    </div>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-title">Số buổi đã học</span>
+                                    <div class="stat-value-group">
+                                        <input type="number" id="completed-sessions-input" value="0" min="0" max="30">
+                                        <span>buổi</span>
+                                    </div>
+                                </div>
+                                <div class="stat-box highlight">
+                                    <span class="stat-title">Tổng học phí dự kiến</span>
+                                    <span id="total-tuition-display" class="stat-value text-gold">0 VNĐ</span>
+                                </div>
+                            </div>
+
+                            <div class="tuition-notice-box">
+                                <h4><i class="fas fa-info-circle"></i> Quy định đóng học phí:</h4>
+                                <p>• Học phí tự động cập nhật vào ngày 1 hàng tháng dựa trên số buổi học thực tế.</p>
+                                <p>• Vui lòng chuyển khoản học phí trước ngày 10 hàng tháng.</p>
+                            </div>
+                        </section>
+
+                        <!-- LỊCH HỌC TRỰC QUAN -->
+                        <section class="card calendar-card">
+                            <div class="calendar-header">
+                                <h3><i class="fas fa-calendar-check"></i> Lịch Học Tháng <span id="current-month-display">--</span></h3>
+                                <div class="schedule-fixed-tag">
+                                    <i class="fas fa-clock"></i> Lịch cố định: <b>T3(17h-19h) | T6(17h-19h) | T7(14h-16h)</b>
+                                </div>
+                            </div>
+                            <div class="calendar-grid-header">
+                                <div>CN</div><div>T2</div><div>T3</div><div>T4</div><div>T5</div><div>T6</div><div>T7</div>
+                            </div>
+                            <div id="calendar-days-grid" class="calendar-days-grid">
+                                <!-- Render qua JS -->
+                            </div>
+                        </section>
+
+                        <!-- THÔNG BÁO DÀNH CHO GIÁO VIÊN (TẠO BUỔI HỌC BÙ) -->
+                        <section id="teacher-notif-control" class="card teacher-notif-card hidden">
+                            <h3><i class="fas fa-bullhorn"></i> Giáo Viên Thông Báo Lịch Học Bù / Đột Xuất</h3>
+                            <form id="create-notif-form">
+                                <div class="form-group">
+                                    <label>Loại thông báo:</label>
+                                    <select id="notif-type">
+                                        <option value="makeup">📅 Thông báo Lịch Học Bù</option>
+                                        <option value="reminder">🔔 Thông báo Nhắc Nhở Lớp Học</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Nội dung thông báo gửi Học Sinh:</label>
+                                    <textarea id="notif-content" rows="3" placeholder="VD: Lớp có buổi học bù Bài Toán Nâng Cao vào T7 lúc 14h00..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn-primary" style="width: 100%;"><i class="fas fa-paper-plane"></i> Gửi Thông Báo Ngay</button>
+                            </form>
+                        </section>
+                    </div>
+                </main>
+            </div>
         </div>
-
-        <main class="dashboard-grid">
-            <!-- THẺ THÔNG TIN RANK & XP HỌC SINH -->
-            <section class="card rank-card">
-                <div class="profile-header">
-                    <div class="avatar"><i class="fas fa-shield-alt"></i></div>
-                    <div>
-                        <h2 id="student-name">Hưng</h2>
-                        <span id="rank-badge" class="rank-tag">Rank Đồng</span>
-                    </div>
-                </div>
-
-                <div class="xp-progress-container">
-                    <div class="xp-text">
-                        <span>Điểm Tích Lũy Tháng Này: <strong id="current-xp">0</strong> XP</span>
-                        <span id="next-rank-text">Tiếp theo: 20 XP</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div id="progress-fill" class="progress-fill" style="width: 0%;"></div>
-                    </div>
-                </div>
-
-                <div class="streak-box">
-                    🔥 Chuỗi tập trung (Streak): <b id="streak-count">0</b> buổi liên tiếp (+1 XP Bonus khi đạt 3 buổi)
-                </div>
-            </section>
-
-            <!-- BIỂU ĐỒ CỘT THỂ HIỆN HỆ THỐNG RANK TRUNG TÂM -->
-            <section class="card chart-card">
-                <h3><i class="fas fa-chart-bar"></i> Bảng Phân Cấp Rank Trong Tháng</h3>
-                <div class="rank-chart-container">
-                    <div class="bar-group" id="bar-dong">
-                        <div class="bar-fill" style="height: 20%;"></div>
-                        <span class="bar-label">🥉 Đồng</span>
-                        <small>0-19 XP</small>
-                    </div>
-                    <div class="bar-group" id="bar-bac">
-                        <div class="bar-fill" style="height: 40%;"></div>
-                        <span class="bar-label">🥈 Bạc</span>
-                        <small>20-44 XP</small>
-                    </div>
-                    <div class="bar-group" id="bar-vang">
-                        <div class="bar-fill" style="height: 60%;"></div>
-                        <span class="bar-label">🥇 Vàng</span>
-                        <small>45-74 XP</small>
-                    </div>
-                    <div class="bar-group" id="bar-bachkim">
-                        <div class="bar-fill" style="height: 80%;"></div>
-                        <span class="bar-label">💎 B.Kim</span>
-                        <small>75-109 XP</small>
-                    </div>
-                    <div class="bar-group" id="bar-kimcuong">
-                        <div class="bar-fill" style="height: 100%;"></div>
-                        <span class="bar-label">👑 K.Cương</span>
-                        <small>110+ XP</small>
-                    </div>
-                </div>
-                <p class="chart-status-text">Vị trí hiện tại của em: <b id="chart-current-rank">Rank Đồng</b></p>
-            </section>
-
-            <!-- TÍNH ĐIỂM THI CUỐI THÁNG -->
-            <section class="card score-card">
-                <h3><i class="fas fa-calculator"></i> Điểm Thi Cuối Tháng</h3>
-                <div class="score-details">
-                    <div class="score-item">
-                        <span>Điểm Bài Thi (70%):</span>
-                        <input type="number" id="test-score" min="0" max="10" step="0.5" disabled style="width: 60px; text-align: center; font-weight: bold;">
-                    </div>
-                    <div class="score-item">
-                        <span>Điểm XP Quy Đổi (30%):</span>
-                        <span id="converted-xp-score">0 / 10</span>
-                    </div>
-                    <div class="score-item">
-                        <span>Điểm Ưu Tiên Từ Rank:</span>
-                        <span id="rank-bonus-score">+0 điểm</span>
-                    </div>
-                    <div class="score-item total">
-                        <span>Điểm Tổng Kết (D_TK):</span>
-                        <strong id="final-score">0.0</strong>
-                    </div>
-                </div>
-                <div id="lego-reward" class="reward-status hidden">
-                    🎉 <b>Chúc mừng!</b> Em đủ điều kiện nhận <b>1 Bộ LEGO!</b> 🧩
-                </div>
-            </section>
-
-            <!-- BẢNG CẬP NHẬT ĐIỂM (GIÁO VIÊN) -->
-            <section id="action-panel" class="card action-card hidden">
-                <h3><i class="fas fa-edit"></i> Cập Nhật Điểm Nhanh (Giáo Viên)</h3>
-                <div class="btn-grid">
-                    <button onclick="addXP(1, 'Phản ứng nhanh (<3p)')" class="btn-action">+1 XP: Phản ứng nhanh (<3p)</button>
-                    <button onclick="addXP(1, 'Coaching: Hỏi/Trả lời mở')" class="btn-action">+1 XP: Hỏi/Trả lời mở</button>
-                    <button onclick="addXP(2, 'Coaching: Phát hiện cách 2/Lỗi sai')" class="btn-action">+2 XP: Phát hiện cách 2</button>
-                    <button onclick="addXP(1, 'Vượt rào cản Không Biết')" class="btn-action">+1 XP: Thử phân tích bài</button>
-                    <button onclick="addXP(1, 'Hoàn thành Bài Toán Nâng Cao')" class="btn-action">+1 XP: Toán Nâng Cao</button>
-                    <button onclick="addXP(1, 'BTVN Đầy đủ')" class="btn-action">+1 XP: BTVN Đầy đủ</button>
-                    <button onclick="addXP(-1, 'Nói Không Biết phản xạ')" class="btn-danger">-1 XP: Tố không biết</button>
-                    <button onclick="addXP(-1, 'Xao nhãng / Làm việc riêng')" class="btn-danger">-1 XP: Xao nhãng</button>
-                    <button onclick="addXP(-1, 'Vào lớp trễ quá 5 phút')" class="btn-danger">-1 XP: Vào trễ >5p</button>
-                </div>
-                <div class="custom-update">
-                    <input type="number" id="input-test-score" min="0" max="10" step="0.25" placeholder="Nhập điểm thi...">
-                    <button onclick="updateTestScore()" class="btn-primary">Lưu điểm thi</button>
-                </div>
-            </section>
-
-            <!-- LỊCH SỬ ĐIỂM -->
-            <section class="card history-card">
-                <h3><i class="fas fa-history"></i> Lịch Sử Tích Điểm</h3>
-                <ul id="history-list" class="history-list"></ul>
-            </section>
-
-            <!-- CỬA HÀNG ĐỔI & QUẢN LÝ THẺ ĐẶC QUYỀN -->
-            <section class="card shop-card">
-                <h3><i class="fas fa-id-card"></i> Kho Thẻ Đặc Quyền</h3>
-                <div class="inventory-box">
-                    <div class="inventory-item">
-                        <span>🎫 Thẻ Gợi Ý Bài Khó:</span>
-                        <strong id="card-hint-count">0</strong> thẻ
-                    </div>
-                    <div class="inventory-item">
-                        <span>🎟️ Thẻ Miễn 1 Bài BTVN:</span>
-                        <strong id="card-homework-count">0</strong> thẻ
-                    </div>
-                </div>
-
-                <h4 class="sub-title"><i class="fas fa-shopping-cart"></i> Đổi Thẻ Bằng XP</h4>
-                <div class="shop-items">
-                    <div class="shop-item">
-                        <div>
-                            <strong>Thẻ "Miễn 1 Bài BTVN Nhỏ"</strong>
-                            <p>Đổi 10 XP</p>
-                        </div>
-                        <button onclick="redeemReward(10, 'homeworkCard', 'Thẻ Miễn BTVN')" class="btn-shop">Đổi</button>
-                    </div>
-                    <div class="shop-item">
-                        <div>
-                            <strong>Thẻ "Gợi Ý Bài Khó"</strong>
-                            <p>Đổi 8 XP (Cần từ Rank Bạc)</p>
-                        </div>
-                        <button onclick="redeemReward(8, 'hintCard', 'Thẻ Gợi Ý Bài Khó')" class="btn-shop">Đổi</button>
-                    </div>
-                </div>
-
-                <div id="teacher-card-control" class="teacher-card-panel hidden">
-                    <h4 class="sub-title"><i class="fas fa-user-check"></i> Giáo Viên Duyệt Sử Dụng Thẻ</h4>
-                    <div class="card-use-btns">
-                        <button onclick="useCard('hintCard', -1, 'Dùng 1 Thẻ Gợi Ý Bài Khó')" class="btn-use-card">Dùng 1 Thẻ Gợi Ý (-1)</button>
-                        <button onclick="useCard('homeworkCard', -1, 'Dùng 1 Thẻ Miễn BTVN')" class="btn-use-card">Dùng 1 Thẻ Miễn BTVN (-1)</button>
-                    </div>
-                </div>
-            </section>
-        </main>
     </div>
 
     <!-- MODAL BẢNG HƯỚNG DẪN RANK -->
@@ -237,6 +428,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=1000"></script>
+    <script src="script.js?v=1001"></script>
 </body>
 </html>
