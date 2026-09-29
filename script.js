@@ -45,13 +45,11 @@ let currentUser = null;
 let selectedStudentKey = "hung";
 
 // HÀM XỬ LÝ ĐĂNG NHẬP (TOÀN CỤC - TRÁNH RELOAD TRANG)
-// HÀM XỬ LÝ ĐĂNG NHẬP (CÓ CƠ CHẾ DỰ PHÒNG TÀI KHOẢN KHI FIREBASE CHƯA TẢI XONG)
 function handleLogin() {
     const userVal = document.getElementById("username") ? document.getElementById("username").value.trim() : "";
     const passVal = document.getElementById("password") ? document.getElementById("password").value.trim() : "";
     const loginError = document.getElementById("login-error");
 
-    // Lấy danh sách tài khoản từ appData, nếu Firebase chưa tải xong thì lấy từ initialData
     const accounts = (appData && appData.accounts && Object.keys(appData.accounts).length > 0) 
         ? appData.accounts 
         : initialData.accounts;
@@ -74,7 +72,6 @@ function initDashboard() {
     const actionPanel = document.getElementById("action-panel");
     const studentSelector = document.getElementById("student-selector");
 
-    // Ẩn màn hình đăng nhập & hiện màn hình chính
     if (loginScreen) {
         loginScreen.style.display = "none";
         loginScreen.classList.add("hidden");
@@ -84,7 +81,6 @@ function initDashboard() {
         appScreen.classList.remove("hidden");
     }
 
-    // Đảm bảo appData luôn có cấu trúc dữ liệu tối thiểu
     if (!appData || !appData.students) {
         appData = initialData;
     }
@@ -111,7 +107,6 @@ function initDashboard() {
         selectedStudentKey = currentUser.username;
     }
 
-    // Render các tab dữ liệu
     try {
         renderStudentData();
         renderHomeworks();
@@ -146,7 +141,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const studentSelector = document.getElementById("student-selector");
     const guideModal = document.getElementById("guide-modal");
 
-    // ĐĂNG NHẬP (Chống refresh trang)
     if (loginForm) {
         loginForm.addEventListener("submit", (e) => {
             e.preventDefault();
@@ -154,7 +148,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ĐĂNG XUẤT
     const logoutBtn = document.getElementById("logout-btn");
     if (logoutBtn) {
         logoutBtn.addEventListener("click", () => {
@@ -165,11 +158,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 appScreen.style.display = "none";
                 appScreen.classList.add("hidden");
             }
-            if (loginScreen) loginScreen.classList.remove("hidden");
+            if (loginScreen) {
+                loginScreen.style.display = "flex";
+                loginScreen.classList.remove("hidden");
+            }
         });
     }
 
-    // TAB NAV & SIDEBAR CONTROLS
     const sidebar = document.getElementById("sidebar");
     const sidebarToggleBtn = document.getElementById("sidebar-toggle-btn");
     const navItems = document.querySelectorAll(".nav-item");
@@ -193,7 +188,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // CHUÔNG THÔNG BÁO DROPDOWN
     const notifBellBtn = document.getElementById("notif-bell-btn");
     const notifDropdown = document.getElementById("notif-dropdown");
     if (notifBellBtn && notifDropdown) {
@@ -202,7 +196,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // MODAL HƯỚNG DẪN RANK
     const guideBtn = document.getElementById("guide-btn");
     const closeModal = document.getElementById("close-modal");
 
@@ -220,7 +213,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // CHỌN HỌC SINH (GIÁO VIÊN)
     if (studentSelector) {
         studentSelector.addEventListener("change", (e) => {
             selectedStudentKey = e.target.value;
@@ -230,7 +222,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // FORM GIAO BÀI TẬP CÓ ĐÍNH KÈM FILE PDF TỪ GIÁO VIÊN
     const createHwForm = document.getElementById("create-hw-form");
     if (createHwForm) {
         createHwForm.addEventListener("submit", (e) => {
@@ -275,7 +266,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // FORM THÔNG BÁO
     const createNotifForm = document.getElementById("create-notif-form");
     if (createNotifForm) {
         createNotifForm.addEventListener("submit", (e) => {
@@ -303,47 +293,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
-
-function initDashboard() {
-    const loginScreen = document.getElementById("login-screen");
-    const appScreen = document.getElementById("app-screen");
-    const teacherControls = document.getElementById("teacher-controls");
-    const actionPanel = document.getElementById("action-panel");
-    const studentSelector = document.getElementById("student-selector");
-
-    if (loginScreen) loginScreen.classList.add("hidden");
-    if (appScreen) {
-        appScreen.style.display = "block";
-        appScreen.classList.remove("hidden");
-    }
-
-    const userDisplay = document.getElementById("user-display");
-    const roleBadge = document.getElementById("role-badge");
-    if (userDisplay) userDisplay.textContent = currentUser.name;
-    if (roleBadge) roleBadge.textContent = currentUser.role === "teacher" ? "Giáo Viên" : "Học Sinh";
-
-    const teacherHwCard = document.getElementById("teacher-hw-create");
-    const teacherNotifCard = document.getElementById("teacher-notif-control");
-
-    if (currentUser.role === "teacher") {
-        if (teacherControls) teacherControls.classList.remove("hidden");
-        if (actionPanel) actionPanel.classList.remove("hidden");
-        if (teacherHwCard) teacherHwCard.classList.remove("hidden");
-        if (teacherNotifCard) teacherNotifCard.classList.remove("hidden");
-        if (studentSelector) selectedStudentKey = studentSelector.value;
-    } else {
-        if (teacherControls) teacherControls.classList.add("hidden");
-        if (actionPanel) actionPanel.classList.add("hidden");
-        if (teacherHwCard) teacherHwCard.classList.add("hidden");
-        if (teacherNotifCard) teacherNotifCard.classList.add("hidden");
-        selectedStudentKey = currentUser.username;
-    }
-
-    renderStudentData();
-    renderHomeworks();
-    renderTuitionAndCalendar();
-    renderNotifications();
-}
 
 // RENDER DỮ LIỆU TAB 1
 function renderStudentData() {
