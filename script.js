@@ -469,6 +469,7 @@ function useCard(cardType, amount, reason) {
 }
 
 // BÀI TẬP VỀ NHÀ (TAB 2)
+// BÀI TẬP VỀ NHÀ (TAB 2)
 function renderHomeworks() {
     const hwListEl = document.getElementById("hw-list");
     if (!hwListEl) return;
@@ -495,6 +496,7 @@ function renderHomeworks() {
         let statusClass = "status-pending";
         let statusText = "Đang tới hạn";
 
+        // VỊ TRÍ SỬA LỖI 1: Ưu tiên kiểm tra bài đã nộp trước
         if (studentSub && studentSub.submittedAt) {
             statusClass = "status-done";
             statusText = "Đã nộp bài";
@@ -512,10 +514,18 @@ function renderHomeworks() {
 
         const formattedDeadline = `${deadlineDate.getDate()}/${deadlineDate.getMonth() + 1}/${deadlineDate.getFullYear()} ${deadlineDate.getHours()}:${String(deadlineDate.getMinutes()).padStart(2, '0')}`;
 
+        // VỊ TRÍ SỬA LỖI 3: Thêm nút Xóa bài tập dành cho Giáo viên
+        const deleteBtnHtml = (currentUser && currentUser.role === "teacher") 
+            ? `<button onclick="deleteHomework('${hw.id}')" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.9rem;" title="Xóa bài tập này"><i class="fas fa-trash-alt"></i> Xóa</button>` 
+            : '';
+
         div.innerHTML = `
             <div class="hw-header-row">
                 <h4>${hw.title}</h4>
-                <span class="hw-status-badge">${statusText}</span>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="hw-status-badge">${statusText}</span>
+                    ${deleteBtnHtml}
+                </div>
             </div>
             ${hw.desc ? `<p style="font-size: 0.88rem; color: var(--text-muted); margin: 0.3rem 0;">${hw.desc}</p>` : ''}
             <div class="hw-deadline-text"><i class="far fa-clock"></i> Hạn nộp: <b>${formattedDeadline}</b></div>
@@ -537,7 +547,7 @@ function renderSubmissionArea(hwId, studentSub) {
             return `
                 <div class="hw-file-upload-box" style="background: #f0fdf4;">
                     <p style="margin: 0; font-size: 0.85rem; color: #166534;">
-                        <i class="fas fa-check-circle"></i> <b>File đã nộp:</b> ${studentSub.fileName || 'Bài_Tập.pdf'} 
+                        <i class="fas fa-check-circle"></i> <b>File đã nộp:</b> <a href="#" onclick="alert('Đang mở bài làm của học sinh: ${studentSub.fileName}'); return false;" style="color: #15803d; font-weight:800;">${studentSub.fileName || 'Bài_Tập.pdf'}</a> 
                         <br><small>Nộp lúc: ${studentSub.submittedAt}</small>
                     </p>
                     ${studentSub.score !== undefined ? `<p style="margin: 0.4rem 0 0 0; font-size: 0.9rem; font-weight: 800; color: var(--primary);">💯 Điểm giáo viên chấm: ${studentSub.score}/10</p>` : '<p style="margin: 0.4rem 0 0 0; font-size: 0.8rem; color: var(--text-muted);">Đang chờ giáo viên chấm điểm...</p>'}
@@ -554,9 +564,16 @@ function renderSubmissionArea(hwId, studentSub) {
         }
     } else {
         if (studentSub && studentSub.submittedAt) {
+            // VỊ TRÍ SỬA LỖI 2: Thêm liên kết xem/tải file bài làm cho Giáo viên
             return `
                 <div class="hw-grading-box">
-                    <p style="margin:0 0 0.4rem 0; font-size: 0.85rem;">📄 File bài làm của học sinh: <b>${studentSub.fileName}</b></p>
+                    <p style="margin:0 0 0.4rem 0; font-size: 0.85rem;">
+                        📄 File bài làm của học sinh: 
+                        <a href="#" onclick="alert('Đang mở file nộp bài của học sinh: ${studentSub.fileName}'); return false;" style="color: var(--primary); font-weight: 800; text-decoration: underline;">
+                            <i class="fas fa-external-link-alt"></i> ${studentSub.fileName}
+                        </a>
+                        <br><small style="color: var(--text-muted);">Thới gian nộp: ${studentSub.submittedAt}</small>
+                    </p>
                     <div style="display: flex; gap: 0.5rem; align-items: center;">
                         <input type="number" id="grade-${hwId}" min="0" max="10" step="0.5" placeholder="Điểm (/10)" value="${studentSub.score !== undefined ? studentSub.score : ''}" style="width: 100px; padding: 0.4rem;">
                         <button onclick="gradeHomework('${hwId}')" class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;"><i class="fas fa-check"></i> Chấm Điểm</button>
@@ -568,82 +585,6 @@ function renderSubmissionArea(hwId, studentSub) {
         }
     }
 }
-
-function submitHomework(hwId) {
-    const fileInput = document.getElementById(`file-${hwId}`);
-    if (!fileInput || !fileInput.files[0]) {
-        alert("Vui lòng chọn 1 file PDF để nộp!");
-        return;
-    }
-
-    const file = fileInput.files[0];
-    if (file.type !== "application/pdf") {
-        alert("Chỉ chấp nhận file định dạng PDF!");
-        return;
-    }
-
-    const now = new Date();
-    const dateStr = `${now.getDate()}/${now.getMonth() + 1} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-    if (!appData.homeworks[hwId].submissions) appData.homeworks[hwId].submissions = {};
-
-    appData.homeworks[hwId].submissions[currentUser.username] = {
-        fileName: file.name,
-        submittedAt: dateStr
-    };
-
-    saveToFirebase();
-    alert("Nộp bài tập PDF thành công!");
-}
-
-function gradeHomework(hwId) {
-    if (!currentUser || currentUser.role !== "teacher") return;
-    const scoreVal = parseFloat(document.getElementById(`grade-${hwId}`).value);
-    if (isNaN(scoreVal) || scoreVal < 0 || scoreVal > 10) {
-        alert("Điểm chấm phải từ 0 đến 10!");
-        return;
-    }
-
-    const sub = appData.homeworks[hwId].submissions[selectedStudentKey];
-    const prevScore = sub.score;
-    sub.score = scoreVal;
-
-    if (scoreVal > 9 && (prevScore === undefined || prevScore <= 9)) {
-        addXP(1, `🎯 Thưởng BTVN Xuất Sắc (${scoreVal}đ)`);
-        alert(`Đã chấm ${scoreVal} điểm! Tự động cộng +1 XP hoàn thành BTVN xuất sắc cho học sinh.`);
-    } else {
-        saveToFirebase();
-        alert(`Đã lưu điểm ${scoreVal} cho bài tập!`);
-    }
-}
-
-function updateDonutChart(done, pending, late) {
-    const total = done + pending + late;
-    const percentage = total > 0 ? Math.round((done / total) * 100) : 0;
-
-    const percentEl = document.getElementById("donut-percentage");
-    if (percentEl) percentEl.textContent = `${percentage}%`;
-
-    const donePath = document.getElementById("donut-done");
-    const pendingPath = document.getElementById("donut-pending");
-    const latePath = document.getElementById("donut-late");
-
-    if (!donePath || total === 0) return;
-
-    const doneP = (done / total) * 100;
-    const pendingP = (pending / total) * 100;
-    const lateP = (late / total) * 100;
-
-    donePath.setAttribute("stroke-dasharray", `${doneP}, 100`);
-    donePath.setAttribute("stroke-dashoffset", "0");
-
-    pendingPath.setAttribute("stroke-dasharray", `${pendingP}, 100`);
-    pendingPath.setAttribute("stroke-dashoffset", `-${doneP}`);
-
-    latePath.setAttribute("stroke-dasharray", `${lateP}, 100`);
-    latePath.setAttribute("stroke-dashoffset", `-${doneP + pendingP}`);
-}
-
 // HỌC PHÍ & LỊCH HỌC (TAB 3)
 function renderTuitionAndCalendar() {
     const student = appData.students[selectedStudentKey];
