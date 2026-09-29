@@ -44,7 +44,7 @@ let appData = initialData;
 let currentUser = null;
 let selectedStudentKey = "hung";
 
-// GÁN TRỰC TIẾP HÀM ĐĂNG NHẬP VÀO WINDOW ĐỂ HTML LUÔN BẮT ĐƯỢC
+// GÁN HÀM ĐĂNG NHẬP VÀO WINDOW
 window.handleLogin = function() {
     const userVal = document.getElementById("username") ? document.getElementById("username").value.trim() : "";
     const passVal = document.getElementById("password") ? document.getElementById("password").value.trim() : "";
@@ -72,7 +72,6 @@ window.initDashboard = function() {
     const actionPanel = document.getElementById("action-panel");
     const studentSelector = document.getElementById("student-selector");
 
-    // Ép ẩn màn hình đăng nhập & Ép hiện màn hình ứng dụng chính
     if (loginScreen) {
         loginScreen.style.setProperty("display", "none", "important");
         loginScreen.classList.add("hidden");
@@ -136,7 +135,7 @@ if (db) {
     });
 }
 
-// KHỞI TẠO CÁC SỰ KIỆN SAU KHI DOM TẢI XONG
+// KHỞI TẠO CÁC SỰ KIỆN DOM
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("login-form");
     const studentSelector = document.getElementById("student-selector");
@@ -842,7 +841,6 @@ function saveToFirebase() {
     if (db) db.ref("app_data").set(appData);
 }
 
-// HÀM BỔ SUNG: XÓA BÀI TẬP DÀNH CHO GIÁO VIÊN
 function deleteHomework(hwId) {
     if (!currentUser || currentUser.role !== "teacher") return;
     if (confirm("Bạn có chắc chắn muốn XÓA bài tập này không?")) {
