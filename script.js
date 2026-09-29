@@ -45,11 +45,13 @@ let currentUser = null;
 let selectedStudentKey = "hung";
 
 // HÀM XỬ LÝ ĐĂNG NHẬP (TOÀN CỤC - TRÁNH RELOAD TRANG)
-function handleLogin() {
+// GÁN TRỰC TIẾP VÀO WINDOW ĐỂ CẢ HTML VÀ JS ĐỀU GỌI ĐƯỢC
+window.handleLogin = function() {
     const userVal = document.getElementById("username") ? document.getElementById("username").value.trim() : "";
     const passVal = document.getElementById("password") ? document.getElementById("password").value.trim() : "";
     const loginError = document.getElementById("login-error");
 
+    // Ưu tiên lấy tài khoản từ appData, nếu chưa có thì lấy từ initialData
     const accounts = (appData && appData.accounts && Object.keys(appData.accounts).length > 0) 
         ? appData.accounts 
         : initialData.accounts;
@@ -59,25 +61,26 @@ function handleLogin() {
     if (account && account.password === passVal) {
         currentUser = { username: userVal, ...account };
         if (loginError) loginError.textContent = "";
-        initDashboard();
+        window.initDashboard();
     } else {
         if (loginError) loginError.textContent = "Tài khoản hoặc mật khẩu không đúng!";
     }
-}
+};
 
-function initDashboard() {
+window.initDashboard = function() {
     const loginScreen = document.getElementById("login-screen");
     const appScreen = document.getElementById("app-screen");
     const teacherControls = document.getElementById("teacher-controls");
     const actionPanel = document.getElementById("action-panel");
     const studentSelector = document.getElementById("student-selector");
 
+    // Ẩn màn hình đăng nhập & Hiện app chính
     if (loginScreen) {
-        loginScreen.style.display = "none";
+        loginScreen.style.setProperty("display", "none", "important");
         loginScreen.classList.add("hidden");
     }
     if (appScreen) {
-        appScreen.style.display = "block";
+        appScreen.style.setProperty("display", "block", "important");
         appScreen.classList.remove("hidden");
     }
 
@@ -113,9 +116,9 @@ function initDashboard() {
         renderTuitionAndCalendar();
         renderNotifications();
     } catch (err) {
-        console.log("Đã đăng nhập thành công, lỗi nhỏ khi render giao diện:", err);
+        console.log("Đã vào dashboard thành công:", err);
     }
-}
+};
 
 // 4. LẮNG NGHE DỮ LIỆU REALTIME
 if (db) {
