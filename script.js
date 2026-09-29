@@ -44,14 +44,12 @@ let appData = initialData;
 let currentUser = null;
 let selectedStudentKey = "hung";
 
-// HÀM XỬ LÝ ĐĂNG NHẬP (TOÀN CỤC - TRÁNH RELOAD TRANG)
-// GÁN TRỰC TIẾP VÀO WINDOW ĐỂ CẢ HTML VÀ JS ĐỀU GỌI ĐƯỢC
+// GÁN TRỰC TIẾP HÀM ĐĂNG NHẬP VÀO WINDOW ĐỂ HTML LUÔN BẮT ĐƯỢC
 window.handleLogin = function() {
     const userVal = document.getElementById("username") ? document.getElementById("username").value.trim() : "";
     const passVal = document.getElementById("password") ? document.getElementById("password").value.trim() : "";
     const loginError = document.getElementById("login-error");
 
-    // Ưu tiên lấy tài khoản từ appData, nếu chưa có thì lấy từ initialData
     const accounts = (appData && appData.accounts && Object.keys(appData.accounts).length > 0) 
         ? appData.accounts 
         : initialData.accounts;
@@ -74,7 +72,7 @@ window.initDashboard = function() {
     const actionPanel = document.getElementById("action-panel");
     const studentSelector = document.getElementById("student-selector");
 
-    // Ẩn màn hình đăng nhập & Hiện app chính
+    // Ép ẩn màn hình đăng nhập & Ép hiện màn hình ứng dụng chính
     if (loginScreen) {
         loginScreen.style.setProperty("display", "none", "important");
         loginScreen.classList.add("hidden");
@@ -116,11 +114,11 @@ window.initDashboard = function() {
         renderTuitionAndCalendar();
         renderNotifications();
     } catch (err) {
-        console.log("Đã vào dashboard thành công:", err);
+        console.log("Đã vào giao diện chính thành công:", err);
     }
 };
 
-// 4. LẮNG NGHE DỮ LIỆU REALTIME
+// 4. LẮNG NGHE DỮ LIỆU REALTIME FIREBASE
 if (db) {
     db.ref("app_data").on("value", (snapshot) => {
         const data = snapshot.val();
@@ -147,7 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (loginForm) {
         loginForm.addEventListener("submit", (e) => {
             e.preventDefault();
-            handleLogin();
+            window.handleLogin();
         });
     }
 
@@ -158,11 +156,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const appScreen = document.getElementById("app-screen");
             const loginScreen = document.getElementById("login-screen");
             if (appScreen) {
-                appScreen.style.display = "none";
+                appScreen.style.setProperty("display", "none", "important");
                 appScreen.classList.add("hidden");
             }
             if (loginScreen) {
-                loginScreen.style.display = "flex";
+                loginScreen.style.setProperty("display", "flex", "important");
                 loginScreen.classList.remove("hidden");
             }
         });
