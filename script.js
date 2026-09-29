@@ -44,6 +44,22 @@ let appData = initialData;
 let currentUser = null;
 let selectedStudentKey = "hung";
 
+// HÀM XỬ LÝ ĐĂNG NHẬP (TOÀN CỤC - TRÁNH RELOAD TRANG)
+function handleLogin() {
+    const userVal = document.getElementById("username").value.trim();
+    const passVal = document.getElementById("password").value.trim();
+    const loginError = document.getElementById("login-error");
+
+    const account = appData.accounts ? appData.accounts[userVal] : null;
+    if (account && account.password === passVal) {
+        currentUser = { username: userVal, ...account };
+        if (loginError) loginError.textContent = "";
+        initDashboard();
+    } else {
+        if (loginError) loginError.textContent = "Tài khoản hoặc mật khẩu không đúng!";
+    }
+}
+
 // 4. LẮNG NGHE DỮ LIỆU REALTIME
 if (db) {
     db.ref("app_data").on("value", (snapshot) => {
@@ -65,25 +81,14 @@ if (db) {
 // KHỞI TẠO CÁC SỰ KIỆN SAU KHI DOM TẢI XONG
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("login-form");
-    const loginError = document.getElementById("login-error");
     const studentSelector = document.getElementById("student-selector");
     const guideModal = document.getElementById("guide-modal");
 
-    // ĐĂNG NHẬP
+    // ĐĂNG NHẬP (Chống refresh trang)
     if (loginForm) {
         loginForm.addEventListener("submit", (e) => {
             e.preventDefault();
-            const userVal = document.getElementById("username").value.trim();
-            const passVal = document.getElementById("password").value.trim();
-
-            const account = appData.accounts ? appData.accounts[userVal] : null;
-            if (account && account.password === passVal) {
-                currentUser = { username: userVal, ...account };
-                if (loginError) loginError.textContent = "";
-                initDashboard();
-            } else {
-                if (loginError) loginError.textContent = "Tài khoản hoặc mật khẩu không đúng!";
-            }
+            handleLogin();
         });
     }
 
