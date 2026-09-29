@@ -55,6 +55,7 @@ let currentUser = null;
 let selectedStudentKey = "hung";
 
 // HÀM ĐĂNG NHẬP CHUẨN
+// HÀM ĐĂNG NHẬP XỬ LÝ CHUẨN
 function handleLogin() {
     const userEl = document.getElementById("username");
     const passEl = document.getElementById("password");
@@ -71,6 +72,8 @@ function handleLogin() {
     if (account && account.password === passVal) {
         currentUser = { username: userVal, ...account };
         if (loginError) loginError.textContent = "";
+        
+        // Mở Dashboard
         initDashboard();
     } else {
         if (loginError) loginError.textContent = "Tài khoản hoặc mật khẩu không đúng!";
@@ -84,10 +87,13 @@ function initDashboard() {
     const actionPanel = document.getElementById("action-panel");
     const studentSelector = document.getElementById("student-selector");
 
+    // 1. Ẩn màn hình đăng nhập
     if (loginScreen) {
         loginScreen.style.cssText = "display: none !important;";
         loginScreen.classList.add("hidden");
     }
+
+    // 2. Hiện Dashboard chính
     if (appScreen) {
         appScreen.style.cssText = "display: block !important;";
         appScreen.classList.remove("hidden");
@@ -97,6 +103,7 @@ function initDashboard() {
         appData = initialData;
     }
 
+    // 3. Cập nhật thông tin Header
     const userDisplay = document.getElementById("user-display");
     const roleBadge = document.getElementById("role-badge");
     if (userDisplay) userDisplay.textContent = currentUser.name || currentUser.username;
@@ -105,6 +112,7 @@ function initDashboard() {
     const teacherHwCard = document.getElementById("teacher-hw-create");
     const teacherNotifCard = document.getElementById("teacher-notif-control");
 
+    // 4. Phân quyền Giáo viên / Học sinh
     if (currentUser.role === "teacher") {
         if (teacherControls) teacherControls.classList.remove("hidden");
         if (actionPanel) actionPanel.classList.remove("hidden");
@@ -119,16 +127,16 @@ function initDashboard() {
         selectedStudentKey = currentUser.username;
     }
 
+    // 5. Render toàn bộ dữ liệu các Tab
     try {
         renderStudentData();
         renderHomeworks();
         renderTuitionAndCalendar();
         renderNotifications();
     } catch (err) {
-        console.log("Render giao diện thành công:", err);
+        console.warn("Lỗi render dữ liệu:", err);
     }
 }
-
 // 4. LẮNG NGHE FIREBASE REALTIME
 if (db) {
     try {
