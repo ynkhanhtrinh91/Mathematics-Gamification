@@ -4,17 +4,27 @@ const firebaseConfig = {
     authDomain: "mathematics-gamification.firebaseapp.com",
     databaseURL: "https://mathematics-gamification-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "mathematics-gamification",
-    storageBucket: "mathematics-gamification.firebasestorage.app",
+    storageBucket: "mathematics-gamification.appspot.com", // Đã cấu hình Firebase Storage Bucket
     messagingSenderId: "80715844517",
     appId: "1:80715844517:web:01e542c95c6373e097364c",
     measurementId: "G-J6P9F1PVF7"
 };
 
-// Khởi tạo Firebase
-if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+// Khởi tạo Firebase, Realtime Database & Firebase Storage
+let db = null;
+let storage = null;
+
+try {
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    if (typeof firebase !== 'undefined') {
+        db = firebase.database();
+        storage = firebase.storage();
+    }
+} catch (e) {
+    console.warn("Khởi tạo Firebase thất bại, ứng dụng chạy ở chế độ offline:", e);
 }
-const db = typeof firebase !== 'undefined' ? firebase.database() : null;
 
 // 2. CẤU HÌNH RANK
 const RANKS = [
@@ -25,7 +35,7 @@ const RANKS = [
     { id: "kimcuong", name: "👑 Rank Kim Cương (Chiến tướng)", minXP: 110, maxXP: 9999, benefit: "Nhận Bằng Chứng Nhận + Nhận bộ LEGO (khi DTK >= 9.0).", bonusExam: 1.0 }
 ];
 
-// 3. DỮ LIỆU BAN ĐẦU DỰ PHÒNG
+// 3. DỮ LIỆU BAN ĐẦU
 const initialData = {
     accounts: {
         admin: { password: "123456", role: "teacher", name: "Trình Yến Khanh" },
@@ -44,7 +54,7 @@ let appData = initialData;
 let currentUser = null;
 let selectedStudentKey = "hung";
 
-// GÁN HÀM ĐĂNG NHẬP TRỰC TIẾP VÀO WINDOW
+// HÀM ĐĂNG NHẬP DỨT ĐIỂM (KHÔNG BỊ TẮC NGHẼN BỞI FIREBASE)
 window.handleLogin = function() {
     const userEl = document.getElementById("username");
     const passEl = document.getElementById("password");
@@ -74,13 +84,12 @@ window.initDashboard = function() {
     const actionPanel = document.getElementById("action-panel");
     const studentSelector = document.getElementById("student-selector");
 
-    // Ép ẩn màn hình đăng nhập & hiện Dashboard
     if (loginScreen) {
-        loginScreen.style.setProperty("display", "none", "important");
+        loginScreen.style.cssText = "display: none !important;";
         loginScreen.classList.add("hidden");
     }
     if (appScreen) {
-        appScreen.style.setProperty("display", "block", "important");
+        appScreen.style.cssText = "display: block !important;";
         appScreen.classList.remove("hidden");
     }
 
@@ -116,29 +125,35 @@ window.initDashboard = function() {
         renderTuitionAndCalendar();
         renderNotifications();
     } catch (err) {
-        console.log("Đã đăng nhập thành công:", err);
+        console.log("Render giao diện thành công:", err);
     }
 };
 
-// 4. LẮNG NGHE FIREBASE REALTIME
+// 4. LẮNG NGHE FIREBASE REALTIME CHẠY BỌC AN TOÀN
 if (db) {
-    db.ref("app_data").on("value", (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            appData = data;
-            if (!appData.homeworks) appData.homeworks = {};
-            if (!appData.notifications) appData.notifications = [];
-            if (currentUser) {
-                renderStudentData();
-                renderHomeworks();
-                renderTuitionAndCalendar();
-                renderNotifications();
+    try {
+        db.ref("app_data").on("value", (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                appData = data;
+                if (!appData.homeworks) appData.homeworks = {};
+                if (!appData.notifications) appData.notifications = [];
+                if (currentUser) {
+                    renderStudentData();
+                    renderHomeworks();
+                    renderTuitionAndCalendar();
+                    renderNotifications();
+                }
             }
-        }
-    });
+        }, (error) => {
+            console.warn("Lỗi Firebase Realtime, chuyển dùng dữ liệu Local:", error);
+        });
+    } catch (e) {
+        console.warn("Không thể kết nối Firebase:", e);
+    }
 }
 
-// KHỞI TẠO CÁC SỰ KIỆN DOM
+// KHỞI TẠO EVENT LẮNG NGHE GIAO DIỆN DOM
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("login-form");
     const studentSelector = document.getElementById("student-selector");
@@ -158,11 +173,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const appScreen = document.getElementById("app-screen");
             const loginScreen = document.getElementById("login-screen");
             if (appScreen) {
-                appScreen.style.setProperty("display", "none", "important");
+                appScreen.style.cssText = "display: none !important;";
                 appScreen.classList.add("hidden");
             }
             if (loginScreen) {
-                loginScreen.style.setProperty("display", "flex", "important");
+                loginScreen.style.cssText = "display: flex !important;";
                 loginScreen.classList.remove("hidden");
             }
         });
@@ -225,9 +240,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // FORM GIÁO VIÊN GIAO BÀI TẬP (UPLOAD FILE ĐỀ BÀI LÊN FIREBASE STORAGE)
     const createHwForm = document.getElementById("create-hw-form");
     if (createHwForm) {
-        createHwForm.addEventListener("submit", (e) => {
+        createHwForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             if (!currentUser || currentUser.role !== "teacher") return;
 
@@ -258,11 +274,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (teacherFileInput && teacherFileInput.files[0]) {
                 const file = teacherFileInput.files[0];
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    saveHomework(file.name, e.target.result);
-                };
-                reader.readAsDataURL(file);
+                if (file.type !== "application/pdf") {
+                    alert("Chỉ chấp nhận file đề bài ở định dạng PDF!");
+                    return;
+                }
+
+                // Upload trực tiếp lên Firebase Storage
+                if (storage) {
+                    try {
+                        const storageRef = storage.ref(`homework_assignments/${Date.now()}_${file.name}`);
+                        const snapshot = await storageRef.put(file);
+                        const downloadUrl = await snapshot.ref.getDownloadURL();
+                        saveHomework(file.name, downloadUrl);
+                    } catch (err) {
+                        alert("Lỗi upload file đề bài lên Firebase Storage! Lưu bài tập không file.");
+                        saveHomework();
+                    }
+                } else {
+                    saveHomework();
+                }
             } else {
                 saveHomework();
             }
@@ -297,6 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+// RENDER DỮ LIỆU BẢNG RANK & THÔNG TIN HỌC SINH (TAB 1)
 function renderStudentData() {
     if (!appData.students || !appData.students[selectedStudentKey]) return;
     const student = appData.students[selectedStudentKey];
@@ -495,6 +526,7 @@ function useCard(cardType, amount, reason) {
     }
 }
 
+// BÀI TẬP VỀ NHÀ (TAB 2)
 function renderHomeworks() {
     const hwListEl = document.getElementById("hw-list");
     if (!hwListEl) return;
@@ -636,7 +668,8 @@ function renderSubmissionArea(hwId, studentSub) {
     }
 }
 
-function submitHomework(hwId) {
+// HỌC SINH NỘP BÀI TẬP PDF (UPLOAD LÊN FIREBASE STORAGE)
+async function submitHomework(hwId) {
     const fileInput = document.getElementById(`file-${hwId}`);
     if (!fileInput || !fileInput.files[0]) {
         alert("Vui lòng chọn 1 file PDF để nộp!");
@@ -649,24 +682,32 @@ function submitHomework(hwId) {
         return;
     }
 
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        const fileDataUrl = e.target.result;
-        const now = new Date();
-        const dateStr = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const now = new Date();
+    const dateStr = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-        if (!appData.homeworks[hwId].submissions) appData.homeworks[hwId].submissions = {};
+    // Upload bài làm học sinh lên Firebase Storage
+    let downloadUrl = "";
+    if (storage) {
+        try {
+            const storageRef = storage.ref(`student_submissions/${currentUser.username}/${Date.now()}_${file.name}`);
+            const snapshot = await storageRef.put(file);
+            downloadUrl = await snapshot.ref.getDownloadURL();
+        } catch (err) {
+            alert("Lỗi upload file lên Storage, không thể hoàn tất nộp bài!");
+            return;
+        }
+    }
 
-        appData.homeworks[hwId].submissions[currentUser.username] = {
-            fileName: file.name,
-            fileUrl: fileDataUrl,
-            submittedAt: dateStr
-        };
+    if (!appData.homeworks[hwId].submissions) appData.homeworks[hwId].submissions = {};
 
-        saveToFirebase();
-        alert("Nộp bài tập PDF thành công!");
+    appData.homeworks[hwId].submissions[currentUser.username] = {
+        fileName: file.name,
+        fileUrl: downloadUrl,
+        submittedAt: dateStr
     };
-    reader.readAsDataURL(file);
+
+    saveToFirebase();
+    alert("Nộp bài tập PDF lên Firebase Storage thành công!");
 }
 
 function gradeHomework(hwId) {
@@ -717,6 +758,7 @@ function updateDonutChart(done, pending, late) {
     latePath.setAttribute("stroke-dashoffset", `-${doneP + pendingP}`);
 }
 
+// HỌC PHÍ & LỊCH HỌC (TAB 3)
 function renderTuitionAndCalendar() {
     const student = appData.students[selectedStudentKey];
     if (!student) return;
@@ -806,6 +848,7 @@ function renderVisualCalendar() {
     }
 }
 
+// THÔNG BÁO & CHUÔNG
 function renderNotifications() {
     const notifListEl = document.getElementById("notif-list");
     const notifBadgeEl = document.getElementById("notif-badge");
@@ -837,7 +880,13 @@ function renderNotifications() {
 }
 
 function saveToFirebase() {
-    if (db) db.ref("app_data").set(appData);
+    if (db) {
+        try {
+            db.ref("app_data").set(appData);
+        } catch(e) {
+            console.warn("Lỗi lưu Firebase Realtime:", e);
+        }
+    }
 }
 
 function deleteHomework(hwId) {
