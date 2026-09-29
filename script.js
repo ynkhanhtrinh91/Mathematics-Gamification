@@ -25,7 +25,7 @@ const RANKS = [
     { id: "kimcuong", name: "👑 Rank Kim Cương (Chiến tướng)", minXP: 110, maxXP: 9999, benefit: "Nhận Bằng Chứng Nhận + Nhận bộ LEGO (khi DTK >= 9.0).", bonusExam: 1.0 }
 ];
 
-// 3. DỮ LIỆU BAN ĐẦU
+// 3. DỮ LIỆU BAN ĐẦU DỰ PHÒNG
 const initialData = {
     accounts: {
         admin: { password: "123456", role: "teacher", name: "Trình Yến Khanh" },
@@ -44,10 +44,12 @@ let appData = initialData;
 let currentUser = null;
 let selectedStudentKey = "hung";
 
-// GÁN HÀM ĐĂNG NHẬP VÀO WINDOW
+// GÁN HÀM ĐĂNG NHẬP TRỰC TIẾP VÀO WINDOW
 window.handleLogin = function() {
-    const userVal = document.getElementById("username") ? document.getElementById("username").value.trim() : "";
-    const passVal = document.getElementById("password") ? document.getElementById("password").value.trim() : "";
+    const userEl = document.getElementById("username");
+    const passEl = document.getElementById("password");
+    const userVal = userEl ? userEl.value.trim() : "";
+    const passVal = passEl ? passEl.value.trim() : "";
     const loginError = document.getElementById("login-error");
 
     const accounts = (appData && appData.accounts && Object.keys(appData.accounts).length > 0) 
@@ -72,6 +74,7 @@ window.initDashboard = function() {
     const actionPanel = document.getElementById("action-panel");
     const studentSelector = document.getElementById("student-selector");
 
+    // Ép ẩn màn hình đăng nhập & hiện Dashboard
     if (loginScreen) {
         loginScreen.style.setProperty("display", "none", "important");
         loginScreen.classList.add("hidden");
@@ -113,11 +116,11 @@ window.initDashboard = function() {
         renderTuitionAndCalendar();
         renderNotifications();
     } catch (err) {
-        console.log("Đã vào giao diện chính thành công:", err);
+        console.log("Đã đăng nhập thành công:", err);
     }
 };
 
-// 4. LẮNG NGHE DỮ LIỆU REALTIME FIREBASE
+// 4. LẮNG NGHE FIREBASE REALTIME
 if (db) {
     db.ref("app_data").on("value", (snapshot) => {
         const data = snapshot.val();
@@ -294,7 +297,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// RENDER DỮ LIỆU TAB 1
 function renderStudentData() {
     if (!appData.students || !appData.students[selectedStudentKey]) return;
     const student = appData.students[selectedStudentKey];
@@ -493,7 +495,6 @@ function useCard(cardType, amount, reason) {
     }
 }
 
-// BÀI TẬP VỀ NHÀ (TAB 2)
 function renderHomeworks() {
     const hwListEl = document.getElementById("hw-list");
     if (!hwListEl) return;
@@ -716,7 +717,6 @@ function updateDonutChart(done, pending, late) {
     latePath.setAttribute("stroke-dashoffset", `-${doneP + pendingP}`);
 }
 
-// HỌC PHÍ & LỊCH HỌC (TAB 3)
 function renderTuitionAndCalendar() {
     const student = appData.students[selectedStudentKey];
     if (!student) return;
@@ -806,7 +806,6 @@ function renderVisualCalendar() {
     }
 }
 
-// THÔNG BÁO & CHUÔNG
 function renderNotifications() {
     const notifListEl = document.getElementById("notif-list");
     const notifBadgeEl = document.getElementById("notif-badge");
