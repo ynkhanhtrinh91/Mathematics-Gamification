@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ Thống Tích Điểm & Rank Lớp Toán</title>
     
-    <link rel="stylesheet" href="style.css?v=20261001">
+    <link rel="stylesheet" href="style.css?v=20261002">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- SDK Firebase v8 Chuẩn tương thích 100% với script.js -->
@@ -196,9 +196,11 @@
                             <button onclick="addXP(1, 'Vượt rào cản Không Biết')" class="btn-action">+1 XP: Thử phân tích bài</button>
                             <button onclick="addXP(1, 'Hoàn thành Bài Toán Nâng Cao')" class="btn-action">+1 XP: Toán Nâng Cao</button>
                             <button onclick="addXP(1, 'BTVN Đầy đủ')" class="btn-action">+1 XP: BTVN Đầy đủ</button>
+                            <button style="pointer-events:none;cursor:default;" tabindex="-1" class="btn-action">+2 XP: BTVN đạt từ 9.5 điểm (tự động)</button>
                             <button onclick="addXP(-1, 'Nói Không Biết phản xạ')" class="btn-danger">-1 XP: Tố không biết</button>
                             <button onclick="addXP(-1, 'Xao nhãng / Làm việc riêng')" class="btn-danger">-1 XP: Xao nhãng</button>
                             <button onclick="addXP(-1, 'Vào lớp trễ quá 5 phút')" class="btn-danger">-1 XP: Vào trễ &gt;5p</button>
+                            <button style="pointer-events:none;cursor:default;" tabindex="-1" class="btn-danger">-10 XP: Không làm BTVN (tự động)</button>
                         </div>
                         <div class="custom-update">
                             <input type="number" id="input-test-score" min="0" max="10" step="0.25" placeholder="Nhập điểm thi...">
@@ -449,6 +451,6 @@
     </div>
 
     <!-- File JS chính -->
-    <script src="script.js?v=20261001"></script>
+    <script src="script.js?v=20261002"></script>
 </body>
 </html>
