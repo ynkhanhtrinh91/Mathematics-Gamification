@@ -45,18 +45,80 @@ let currentUser = null;
 let selectedStudentKey = "hung";
 
 // HÀM XỬ LÝ ĐĂNG NHẬP (TOÀN CỤC - TRÁNH RELOAD TRANG)
+// HÀM XỬ LÝ ĐĂNG NHẬP (CÓ CƠ CHẾ DỰ PHÒNG TÀI KHOẢN KHI FIREBASE CHƯA TẢI XONG)
 function handleLogin() {
-    const userVal = document.getElementById("username").value.trim();
-    const passVal = document.getElementById("password").value.trim();
+    const userVal = document.getElementById("username") ? document.getElementById("username").value.trim() : "";
+    const passVal = document.getElementById("password") ? document.getElementById("password").value.trim() : "";
     const loginError = document.getElementById("login-error");
 
-    const account = appData.accounts ? appData.accounts[userVal] : null;
+    // Lấy danh sách tài khoản từ appData, nếu Firebase chưa tải xong thì lấy từ initialData
+    const accounts = (appData && appData.accounts && Object.keys(appData.accounts).length > 0) 
+        ? appData.accounts 
+        : initialData.accounts;
+
+    const account = accounts ? accounts[userVal] : null;
+
     if (account && account.password === passVal) {
         currentUser = { username: userVal, ...account };
         if (loginError) loginError.textContent = "";
         initDashboard();
     } else {
         if (loginError) loginError.textContent = "Tài khoản hoặc mật khẩu không đúng!";
+    }
+}
+
+function initDashboard() {
+    const loginScreen = document.getElementById("login-screen");
+    const appScreen = document.getElementById("app-screen");
+    const teacherControls = document.getElementById("teacher-controls");
+    const actionPanel = document.getElementById("action-panel");
+    const studentSelector = document.getElementById("student-selector");
+
+    // Ẩn màn hình đăng nhập & hiện màn hình chính
+    if (loginScreen) {
+        loginScreen.style.display = "none";
+        loginScreen.classList.add("hidden");
+    }
+    if (appScreen) {
+        appScreen.style.display = "block";
+        appScreen.classList.remove("hidden");
+    }
+
+    // Đảm bảo appData luôn có cấu trúc dữ liệu tối thiểu
+    if (!appData || !appData.students) {
+        appData = initialData;
+    }
+
+    const userDisplay = document.getElementById("user-display");
+    const roleBadge = document.getElementById("role-badge");
+    if (userDisplay) userDisplay.textContent = currentUser.name || currentUser.username;
+    if (roleBadge) roleBadge.textContent = currentUser.role === "teacher" ? "Giáo Viên" : "Học Sinh";
+
+    const teacherHwCard = document.getElementById("teacher-hw-create");
+    const teacherNotifCard = document.getElementById("teacher-notif-control");
+
+    if (currentUser.role === "teacher") {
+        if (teacherControls) teacherControls.classList.remove("hidden");
+        if (actionPanel) actionPanel.classList.remove("hidden");
+        if (teacherHwCard) teacherHwCard.classList.remove("hidden");
+        if (teacherNotifCard) teacherNotifCard.classList.remove("hidden");
+        if (studentSelector) selectedStudentKey = studentSelector.value;
+    } else {
+        if (teacherControls) teacherControls.classList.add("hidden");
+        if (actionPanel) actionPanel.classList.add("hidden");
+        if (teacherHwCard) teacherHwCard.classList.add("hidden");
+        if (teacherNotifCard) teacherNotifCard.classList.add("hidden");
+        selectedStudentKey = currentUser.username;
+    }
+
+    // Render các tab dữ liệu
+    try {
+        renderStudentData();
+        renderHomeworks();
+        renderTuitionAndCalendar();
+        renderNotifications();
+    } catch (err) {
+        console.log("Đã đăng nhập thành công, lỗi nhỏ khi render giao diện:", err);
     }
 }
 
