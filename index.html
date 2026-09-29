@@ -1,11 +1,11 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ Thống Tích Điểm & Rank Lớp Toán</title>
     
-    <link rel="stylesheet" href="style.css?v=3000">
+    <link rel="stylesheet" href="style.css?v=20261001">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- SDK Firebase v8 Chuẩn tương thích 100% với script.js -->
@@ -203,6 +203,24 @@
                         <div class="custom-update">
                             <input type="number" id="input-test-score" min="0" max="10" step="0.25" placeholder="Nhập điểm thi...">
                             <button onclick="updateTestScore()" class="btn-primary">Lưu điểm thi</button>
+                        </div>
+                    </section>
+
+                    <!-- BẢNG QUY TẮC ĐIỂM (HỌC SINH - CHỈ XEM) -->
+                    <section id="student-rules-panel" class="card action-card hidden">
+                        <h3><i class="fas fa-eye"></i> Bảng Điểm Cộng / Trừ (Chỉ Xem)</h3>
+                        <div class="btn-grid">
+                            <button style="pointer-events:none;cursor:default;" tabindex="-1" class="btn-action">+1 XP: Phản ứng nhanh (&lt;3p)</button>
+                            <button style="pointer-events:none;cursor:default;" tabindex="-1" class="btn-action">+1 XP: Hỏi/Trả lời mở</button>
+                            <button style="pointer-events:none;cursor:default;" tabindex="-1" class="btn-action">+2 XP: Phát hiện cách 2</button>
+                            <button style="pointer-events:none;cursor:default;" tabindex="-1" class="btn-action">+1 XP: Thử phân tích bài</button>
+                            <button style="pointer-events:none;cursor:default;" tabindex="-1" class="btn-action">+1 XP: Toán Nâng Cao</button>
+                            <button style="pointer-events:none;cursor:default;" tabindex="-1" class="btn-action">+1 XP: BTVN Đầy đủ</button>
+                            <button style="pointer-events:none;cursor:default;" tabindex="-1" class="btn-action">+2 XP: BTVN đạt từ 9.5 điểm (tự động)</button>
+                            <button style="pointer-events:none;cursor:default;" tabindex="-1" class="btn-danger">-1 XP: Tớ không biết</button>
+                            <button style="pointer-events:none;cursor:default;" tabindex="-1" class="btn-danger">-1 XP: Xao nhãng</button>
+                            <button style="pointer-events:none;cursor:default;" tabindex="-1" class="btn-danger">-1 XP: Vào trễ &gt;5p</button>
+                            <button style="pointer-events:none;cursor:default;" tabindex="-1" class="btn-danger">-10 XP: Không làm BTVN (tự động)</button>
                         </div>
                     </section>
 
@@ -431,6 +449,6 @@
     </div>
 
     <!-- File JS chính -->
-    <script src="script.js?v=9999"></script>
+    <script src="script.js?v=20261001"></script>
 </body>
 </html>
