@@ -175,27 +175,36 @@ document.addEventListener("DOMContentLoaded", () => {
             const deadline = document.getElementById("hw-deadline").value;
             const teacherFileInput = document.getElementById("teacher-hw-file");
 
-            let attachedFileName = "";
-            if (teacherFileInput && teacherFileInput.files[0]) {
-                attachedFileName = teacherFileInput.files[0].name;
-            }
+            const saveHomework = (teacherPdfName = "", teacherPdfUrl = "") => {
+                const hwId = "hw_" + Date.now();
+                if (!appData.homeworks) appData.homeworks = {};
 
-            const hwId = "hw_" + Date.now();
-            if (!appData.homeworks) appData.homeworks = {};
+                appData.homeworks[hwId] = {
+                    id: hwId,
+                    title,
+                    desc,
+                    deadline,
+                    teacherPdf: teacherPdfName,
+                    teacherPdfUrl: teacherPdfUrl,
+                    createdAt: new Date().toISOString(),
+                    submissions: {}
+                };
 
-            appData.homeworks[hwId] = {
-                id: hwId,
-                title,
-                desc,
-                deadline,
-                teacherPdf: attachedFileName,
-                createdAt: new Date().toISOString(),
-                submissions: {}
+                saveToFirebase();
+                createHwForm.reset();
+                alert("Đã giao bài tập mới thành công!");
             };
 
-            saveToFirebase();
-            createHwForm.reset();
-            alert("Đã giao bài tập mới thành công!");
+            if (teacherFileInput && teacherFileInput.files[0]) {
+                const file = teacherFileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    saveHomework(file.name, e.target.result);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                saveHomework();
+            }
         });
     }
 
@@ -469,7 +478,6 @@ function useCard(cardType, amount, reason) {
 }
 
 // BÀI TẬP VỀ NHÀ (TAB 2)
-// BÀI TẬP VỀ NHÀ (TAB 2)
 function renderHomeworks() {
     const hwListEl = document.getElementById("hw-list");
     if (!hwListEl) return;
@@ -496,7 +504,6 @@ function renderHomeworks() {
         let statusClass = "status-pending";
         let statusText = "Đang tới hạn";
 
-        // VỊ TRÍ SỬA LỖI 1: Ưu tiên kiểm tra bài đã nộp trước
         if (studentSub && studentSub.submittedAt) {
             statusClass = "status-done";
             statusText = "Đã nộp bài";
@@ -514,7 +521,6 @@ function renderHomeworks() {
 
         const formattedDeadline = `${deadlineDate.getDate()}/${deadlineDate.getMonth() + 1}/${deadlineDate.getFullYear()} ${deadlineDate.getHours()}:${String(deadlineDate.getMinutes()).padStart(2, '0')}`;
 
-        // VỊ TRÍ SỬA LỖI 3: Thêm nút Xóa bài tập dành cho Giáo viên
         const deleteBtnHtml = (currentUser && currentUser.role === "teacher") 
             ? `<button onclick="deleteHomework('${hw.id}')" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.9rem;" title="Xóa bài tập này"><i class="fas fa-trash-alt"></i> Xóa</button>` 
             : '';
@@ -530,7 +536,12 @@ function renderHomeworks() {
             ${hw.desc ? `<p style="font-size: 0.88rem; color: var(--text-muted); margin: 0.3rem 0;">${hw.desc}</p>` : ''}
             <div class="hw-deadline-text"><i class="far fa-clock"></i> Hạn nộp: <b>${formattedDeadline}</b></div>
             
-            ${hw.teacherPdf ? `<a href="#" onclick="alert('Đang mở file đề bài: ${hw.teacherPdf}'); return false;" class="btn-pdf-download"><i class="fas fa-file-pdf"></i> Tải / Xem Đề Bài PDF: <b>${hw.teacherPdf}</b></a>` : ''}
+            ${hw.teacherPdf ? `
+                <div style="margin-bottom: 0.8rem;">
+                    <button onclick="viewPdfFile('${hw.teacherPdfUrl \vert{}\vert{} ''}', '${hw.teacherPdf}')" class="btn-pdf-download" style="cursor: pointer; border: none; font-family: inherit;">
+                        <i class="fas fa-file-pdf"></i> Xem Đề Bài PDF: <b>${hw.teacherPdf}</b>
+                    </button>
+                </div>` : ''}
 
             ${renderSubmissionArea(hw.id, studentSub)}
         `;
@@ -541,13 +552,36 @@ function renderHomeworks() {
     updateDonutChart(totalDone, totalPending, totalLate);
 }
 
+function viewPdfFile(fileUrl, fileName) {
+    if (!fileUrl) {
+        alert(`Không tìm thấy dữ liệu file: ${fileName}`);
+        return;
+    }
+    const win = window.open();
+    if (win) {
+        win.document.write(`
+            <html>
+                <head><title>Xem file PDF - ${fileName}</title></head>
+                <body style="margin:0; padding:0; height:100vh; overflow:hidden;">
+                    <iframe src="${fileUrl}" frameborder="0" style="border:0; width:100%; height:100%;" allowfullscreen></iframe>
+                </body>
+            </html>
+        `);
+    } else {
+        alert("Trình duyệt đã chặn cửa sổ bật lên (Pop-up)! Vui lòng cho phép trình duyệt mở tab mới.");
+    }
+}
+
 function renderSubmissionArea(hwId, studentSub) {
     if (currentUser && currentUser.role === "student") {
         if (studentSub && studentSub.submittedAt) {
             return `
                 <div class="hw-file-upload-box" style="background: #f0fdf4;">
                     <p style="margin: 0; font-size: 0.85rem; color: #166534;">
-                        <i class="fas fa-check-circle"></i> <b>File đã nộp:</b> <a href="#" onclick="alert('Đang mở bài làm của học sinh: ${studentSub.fileName}'); return false;" style="color: #15803d; font-weight:800;">${studentSub.fileName || 'Bài_Tập.pdf'}</a> 
+                        <i class="fas fa-check-circle"></i> <b>File đã nộp:</b> 
+                        <button onclick="viewPdfFile('${studentSub.fileUrl || ''}', '${studentSub.fileName}')" style="background:none; border:none; color:#15803d; font-weight:800; text-decoration:underline; cursor:pointer; font-family:inherit;">
+                            ${studentSub.fileName || 'Bài_Tập.pdf'}
+                        </button>
                         <br><small>Nộp lúc: ${studentSub.submittedAt}</small>
                     </p>
                     ${studentSub.score !== undefined ? `<p style="margin: 0.4rem 0 0 0; font-size: 0.9rem; font-weight: 800; color: var(--primary);">💯 Điểm giáo viên chấm: ${studentSub.score}/10</p>` : '<p style="margin: 0.4rem 0 0 0; font-size: 0.8rem; color: var(--text-muted);">Đang chờ giáo viên chấm điểm...</p>'}
@@ -564,15 +598,14 @@ function renderSubmissionArea(hwId, studentSub) {
         }
     } else {
         if (studentSub && studentSub.submittedAt) {
-            // VỊ TRÍ SỬA LỖI 2: Thêm liên kết xem/tải file bài làm cho Giáo viên
             return `
                 <div class="hw-grading-box">
                     <p style="margin:0 0 0.4rem 0; font-size: 0.85rem;">
                         📄 File bài làm của học sinh: 
-                        <a href="#" onclick="alert('Đang mở file nộp bài của học sinh: ${studentSub.fileName}'); return false;" style="color: var(--primary); font-weight: 800; text-decoration: underline;">
+                        <button onclick="viewPdfFile('${studentSub.fileUrl || ''}', '${studentSub.fileName}')" style="background:none; border:none; color:var(--primary); font-weight:800; text-decoration:underline; cursor:pointer; font-family:inherit;">
                             <i class="fas fa-external-link-alt"></i> ${studentSub.fileName}
-                        </a>
-                        <br><small style="color: var(--text-muted);">Thới gian nộp: ${studentSub.submittedAt}</small>
+                        </button>
+                        <br><small style="color: var(--text-muted);">Thời gian nộp: ${studentSub.submittedAt}</small>
                     </p>
                     <div style="display: flex; gap: 0.5rem; align-items: center;">
                         <input type="number" id="grade-${hwId}" min="0" max="10" step="0.5" placeholder="Điểm (/10)" value="${studentSub.score !== undefined ? studentSub.score : ''}" style="width: 100px; padding: 0.4rem;">
@@ -585,6 +618,88 @@ function renderSubmissionArea(hwId, studentSub) {
         }
     }
 }
+
+function submitHomework(hwId) {
+    const fileInput = document.getElementById(`file-${hwId}`);
+    if (!fileInput || !fileInput.files[0]) {
+        alert("Vui lòng chọn 1 file PDF để nộp!");
+        return;
+    }
+
+    const file = fileInput.files[0];
+    if (file.type !== "application/pdf") {
+        alert("Chỉ chấp nhận file định dạng PDF!");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const fileDataUrl = e.target.result;
+        const now = new Date();
+        const dateStr = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+        if (!appData.homeworks[hwId].submissions) appData.homeworks[hwId].submissions = {};
+
+        appData.homeworks[hwId].submissions[currentUser.username] = {
+            fileName: file.name,
+            fileUrl: fileDataUrl,
+            submittedAt: dateStr
+        };
+
+        saveToFirebase();
+        alert("Nộp bài tập PDF thành công!");
+    };
+    reader.readAsDataURL(file);
+}
+
+function gradeHomework(hwId) {
+    if (!currentUser || currentUser.role !== "teacher") return;
+    const scoreVal = parseFloat(document.getElementById(`grade-${hwId}`).value);
+    if (isNaN(scoreVal) || scoreVal < 0 || scoreVal > 10) {
+        alert("Điểm chấm phải từ 0 đến 10!");
+        return;
+    }
+
+    const sub = appData.homeworks[hwId].submissions[selectedStudentKey];
+    const prevScore = sub.score;
+    sub.score = scoreVal;
+
+    if (scoreVal > 9 && (prevScore === undefined || prevScore <= 9)) {
+        addXP(1, `🎯 Thưởng BTVN Xuất Sắc (${scoreVal}đ)`);
+        alert(`Đã chấm ${scoreVal} điểm! Tự động cộng +1 XP hoàn thành BTVN xuất sắc cho học sinh.`);
+    } else {
+        saveToFirebase();
+        alert(`Đã lưu điểm ${scoreVal} cho bài tập!`);
+    }
+}
+
+function updateDonutChart(done, pending, late) {
+    const total = done + pending + late;
+    const percentage = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    const percentEl = document.getElementById("donut-percentage");
+    if (percentEl) percentEl.textContent = `${percentage}%`;
+
+    const donePath = document.getElementById("donut-done");
+    const pendingPath = document.getElementById("donut-pending");
+    const latePath = document.getElementById("donut-late");
+
+    if (!donePath || total === 0) return;
+
+    const doneP = (done / total) * 100;
+    const pendingP = (pending / total) * 100;
+    const lateP = (late / total) * 100;
+
+    donePath.setAttribute("stroke-dasharray", `${doneP} ${100 - doneP}`);
+    donePath.setAttribute("stroke-dashoffset", "0");
+
+    pendingPath.setAttribute("stroke-dasharray", `${pendingP} ${100 - pendingP}`);
+    pendingPath.setAttribute("stroke-dashoffset", `-${doneP}`);
+
+    latePath.setAttribute("stroke-dasharray", `${lateP} ${100 - lateP}`);
+    latePath.setAttribute("stroke-dashoffset", `-${doneP + pendingP}`);
+}
+
 // HỌC PHÍ & LỊCH HỌC (TAB 3)
 function renderTuitionAndCalendar() {
     const student = appData.students[selectedStudentKey];
@@ -709,6 +824,7 @@ function renderNotifications() {
 function saveToFirebase() {
     if (db) db.ref("app_data").set(appData);
 }
+
 // HÀM BỔ SUNG: XÓA BÀI TẬP DÀNH CHO GIÁO VIÊN
 function deleteHomework(hwId) {
     if (!currentUser || currentUser.role !== "teacher") return;
