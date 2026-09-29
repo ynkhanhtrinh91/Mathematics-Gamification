@@ -4,7 +4,7 @@ const firebaseConfig = {
     authDomain: "mathematics-gamification.firebaseapp.com",
     databaseURL: "https://mathematics-gamification-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "mathematics-gamification",
-    storageBucket: "mathematics-gamification.appspot.com", // Đã cấu hình Firebase Storage Bucket
+    storageBucket: "mathematics-gamification.appspot.com",
     messagingSenderId: "80715844517",
     appId: "1:80715844517:web:01e542c95c6373e097364c",
     measurementId: "G-J6P9F1PVF7"
@@ -54,8 +54,8 @@ let appData = initialData;
 let currentUser = null;
 let selectedStudentKey = "hung";
 
-// HÀM ĐĂNG NHẬP DỨT ĐIỂM (KHÔNG BỊ TẮC NGHẼN BỞI FIREBASE)
-window.handleLogin = function() {
+// HÀM ĐĂNG NHẬP CHUẨN
+function handleLogin() {
     const userEl = document.getElementById("username");
     const passEl = document.getElementById("password");
     const userVal = userEl ? userEl.value.trim() : "";
@@ -71,13 +71,13 @@ window.handleLogin = function() {
     if (account && account.password === passVal) {
         currentUser = { username: userVal, ...account };
         if (loginError) loginError.textContent = "";
-        window.initDashboard();
+        initDashboard();
     } else {
         if (loginError) loginError.textContent = "Tài khoản hoặc mật khẩu không đúng!";
     }
-};
+}
 
-window.initDashboard = function() {
+function initDashboard() {
     const loginScreen = document.getElementById("login-screen");
     const appScreen = document.getElementById("app-screen");
     const teacherControls = document.getElementById("teacher-controls");
@@ -127,9 +127,9 @@ window.initDashboard = function() {
     } catch (err) {
         console.log("Render giao diện thành công:", err);
     }
-};
+}
 
-// 4. LẮNG NGHE FIREBASE REALTIME CHẠY BỌC AN TOÀN
+// 4. LẮNG NGHE FIREBASE REALTIME
 if (db) {
     try {
         db.ref("app_data").on("value", (snapshot) => {
@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (loginForm) {
         loginForm.addEventListener("submit", (e) => {
             e.preventDefault();
-            window.handleLogin();
+            handleLogin();
         });
     }
 
@@ -240,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // FORM GIÁO VIÊN GIAO BÀI TẬP (UPLOAD FILE ĐỀ BÀI LÊN FIREBASE STORAGE)
+    // FORM GIÁO VIÊN GIAO BÀI TẬP
     const createHwForm = document.getElementById("create-hw-form");
     if (createHwForm) {
         createHwForm.addEventListener("submit", async (e) => {
@@ -279,7 +279,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
-                // Upload trực tiếp lên Firebase Storage
                 if (storage) {
                     try {
                         const storageRef = storage.ref(`homework_assignments/${Date.now()}_${file.name}`);
@@ -668,7 +667,7 @@ function renderSubmissionArea(hwId, studentSub) {
     }
 }
 
-// HỌC SINH NỘP BÀI TẬP PDF (UPLOAD LÊN FIREBASE STORAGE)
+// HỌC SINH NỘP BÀI TẬP PDF
 async function submitHomework(hwId) {
     const fileInput = document.getElementById(`file-${hwId}`);
     if (!fileInput || !fileInput.files[0]) {
@@ -685,7 +684,6 @@ async function submitHomework(hwId) {
     const now = new Date();
     const dateStr = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-    // Upload bài làm học sinh lên Firebase Storage
     let downloadUrl = "";
     if (storage) {
         try {
