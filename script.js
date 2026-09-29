@@ -6,11 +6,14 @@
 // Để trống apiKey => dữ liệu lưu trong trình duyệt (localStorage).
 // Điền đủ thông tin => tự đồng bộ Firebase Realtime Database.
 const firebaseConfig = {
-    apiKey: "",
-    authDomain: "",
-    databaseURL: "",
-    projectId: "",
-    storageBucket: ""
+    apiKey: "AIzaSyDdyJR5uRBXYNY0pwsn0Z9HjQLQfZ7pUYM",
+    authDomain: "mathematics-gamification.firebaseapp.com",
+    databaseURL: "https://mathematics-gamification-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "mathematics-gamification",
+    storageBucket: "mathematics-gamification.appspot.com",
+    messagingSenderId: "80715844517",
+    appId: "1:80715844517:web:01e542c95c6373e097364c",
+    measurementId: "G-J6P9F1PVF7"
 };
 
 // ---------- DỮ LIỆU MẶC ĐỊNH ----------
@@ -119,19 +122,20 @@ function getRankIndex(xp) {
     RANKS.forEach((r, i) => { if (xp >= r.min) idx = i; });
     return idx;
 }
-function readFile(file) {
+function readAsDataURL(file) {
     return new Promise((resolve, reject) => {
-        if (storageRef) {
-            const ref = storageRef.child("pdf/" + Date.now() + "_" + file.name);
-            ref.put(file).then(() => ref.getDownloadURL()).then(url => resolve({ name: file.name, url })).catch(reject);
-        } else {
-            if (file.size > 1.5 * 1024 * 1024) { reject(new Error("File quá lớn (>1.5MB) khi chưa cấu hình Firebase Storage.")); return; }
-            const fr = new FileReader();
-            fr.onload = () => resolve({ name: file.name, url: fr.result });
-            fr.onerror = reject;
-            fr.readAsDataURL(file);
-        }
+        if (file.size > 1.5 * 1024 * 1024) { reject(new Error("File quá lớn (>1.5MB) khi chưa dùng được Firebase Storage.")); return; }
+        const fr = new FileReader();
+        fr.onload = () => resolve({ name: file.name, url: fr.result });
+        fr.onerror = reject;
+        fr.readAsDataURL(file);
     });
+}
+function readFile(file) {
+    if (!storageRef) return readAsDataURL(file);
+    const ref = storageRef.child("pdf/" + Date.now() + "_" + file.name);
+    return ref.put(file).then(() => ref.getDownloadURL()).then(url => ({ name: file.name, url }))
+        .catch(err => { console.warn("Storage lỗi, chuyển sang lưu trực tiếp:", err); return readAsDataURL(file); });
 }
 
 // ---------- ĐĂNG NHẬP ----------
@@ -175,6 +179,7 @@ function initDashboard() {
     const teacherControls = document.getElementById("teacher-controls");
     const actionPanel = document.getElementById("action-panel");
     const studentSelector = document.getElementById("student-selector");
+    const studentRules = document.getElementById("student-rules-panel");
 
     // 1. Ẩn màn hình đăng nhập
     if (loginScreen) {
@@ -208,12 +213,14 @@ function initDashboard() {
         if (teacherHwCard) teacherHwCard.classList.remove("hidden");
         if (teacherNotifCard) teacherNotifCard.classList.remove("hidden");
         if (studentSelector) selectedStudentKey = studentSelector.value;
+        if (studentRules) studentRules.classList.add("hidden");
     } else {
         if (teacherControls) teacherControls.classList.add("hidden");
         if (actionPanel) actionPanel.classList.add("hidden");
         if (teacherHwCard) teacherHwCard.classList.add("hidden");
         if (teacherNotifCard) teacherNotifCard.classList.add("hidden");
         selectedStudentKey = currentUser.username;
+        if (studentRules) studentRules.classList.remove("hidden");
     }
 
     // 5. Render toàn bộ dữ liệu các Tab
@@ -224,7 +231,29 @@ function initDashboard() {
     }
 }
 
+// Tự động trừ 10 XP nếu quá hạn mà chưa nộp BTVN (chỉ áp dụng cho bài tạo sau khi có tính năng này)
+function applyHomeworkPenalties() {
+    let changed = false;
+    const now = Date.now();
+    appData.homeworks.forEach(hw => {
+        if (!hw.penalty || now <= new Date(hw.deadline).getTime()) return;
+        hw.penalized = hw.penalized || {};
+        Object.keys(appData.students).forEach(key => {
+            const sub = hw.submissions && hw.submissions[key];
+            if (sub || hw.penalized[key]) return;
+            const st = appData.students[key];
+            st.xp = Math.max(0, st.xp - 10);
+            pushHistory(st, -10, "Không làm BTVN: " + hw.title);
+            hw.penalized[key] = true;
+            changed = true;
+        });
+    });
+    if (changed) saveData();
+    return changed;
+}
+
 function renderAll() {
+    applyHomeworkPenalties();
     renderStudentData();
     renderHomeworks();
     renderTuitionAndCalendar();
@@ -407,12 +436,12 @@ function renderHomeworks() {
                 html += `<div class="hw-file-upload-box"><label style="font-size:.82rem;font-weight:700;">${sub ? "Bài đã nộp: " + esc(sub.fileName) + " — nộp lại:" : "Nộp bài (PDF):"}</label>
                     <input type="file" id="sub-file-${hw.id}" accept="application/pdf" style="font-size:.85rem;display:block;margin:.4rem 0;">
                     <button class="btn-primary" onclick="submitHomework('${hw.id}')">Nộp bài</button></div>`;
-                if (sub && sub.score != null) html += `<div class="hw-grading-box"><b>Điểm: ${sub.score}/10</b>${sub.score >= 9 ? " 🎉 (+1 XP thưởng)" : ""}</div>`;
+                if (sub && sub.score != null) html += `<div class="hw-grading-box"><b>Điểm: ${sub.score}/10</b>${sub.score >= 9.5 ? " 🎉 (+2 XP thưởng)" : ""}</div>`;
             } else if (sub) {
                 html += `<div class="hw-grading-box"><a class="btn-pdf-download" href="${sub.fileUrl}" download="${esc(sub.fileName)}" target="_blank"><i class="fas fa-file-pdf"></i> Bài nộp: ${esc(sub.fileName)}</a><br>
                     <input type="number" id="grade-${hw.id}" min="0" max="10" step="0.25" placeholder="Chấm điểm..." value="${sub.score == null ? "" : sub.score}" style="width:110px;">
                     <button class="btn-primary" onclick="gradeHomework('${hw.id}')">Lưu điểm</button>
-                    <small style="display:block;margin-top:.3rem;">Điểm ≥ 9 sẽ được thưởng +1 XP (một lần).</small></div>`;
+                    <small style="display:block;margin-top:.3rem;">Điểm ≥ 9.5 sẽ tự động được thưởng +2 XP (một lần).</small></div>`;
             } else {
                 html += `<small style="color:#94a3b8;">Học sinh chưa nộp bài.</small>`;
             }
@@ -452,11 +481,11 @@ function gradeHomework(id) {
     const val = parseFloat(document.getElementById("grade-" + id).value);
     if (!sub || isNaN(val) || val < 0 || val > 10) { alert("Vui lòng nhập điểm từ 0 đến 10."); return; }
     sub.score = val;
-    if (val >= 9 && !sub.rewarded) {
+    if (val >= 9.5 && !sub.rewarded) {
         sub.rewarded = true;
         const s = getStudent();
-        s.xp += 1;
-        pushHistory(s, 1, "Điểm BTVN cao: " + hw.title);
+        s.xp += 2;
+        pushHistory(s, 2, "BTVN đạt " + val + " điểm: " + hw.title);
     }
     saveData();
     renderHomeworks();
@@ -484,7 +513,7 @@ function handleCreateHomework(e) {
 
     const finish = f => {
         appData.homeworks.push({
-            id: "hw" + Date.now(), title, desc, deadline,
+            id: "hw" + Date.now(), title, desc, deadline, penalty: true, penalized: {},
             fileName: f ? f.name : "", fileUrl: f ? f.url : "", submissions: {}
         });
         saveData();
@@ -627,3 +656,5 @@ function bindUI() {
 }
 
 bindUI();
+// Kiểm tra quá hạn BTVN mỗi phút khi đang đăng nhập
+setInterval(() => { if (currentUser && applyHomeworkPenalties()) renderAll(); }, 60000);
