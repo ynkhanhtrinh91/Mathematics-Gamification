@@ -156,15 +156,14 @@ if (db) {
 // KHỞI TẠO EVENT LẮNG NGHE GIAO DIỆN DOM
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("login-form");
-    const studentSelector = document.getElementById("student-selector");
-    const guideModal = document.getElementById("guide-modal");
-
     if (loginForm) {
-        loginForm.addEventListener("submit", (e) => {
-            e.preventDefault();
+        loginForm.onsubmit = function(e) {
+            e.preventDefault(); // Chặn đứng việc trình duyệt refresh trang
             handleLogin();
-        });
+            return false;      // Đảm bảo dừng hoàn toàn luồng submit mặc định
+        };
     }
+    // ...
 
     const logoutBtn = document.getElementById("logout-btn");
     if (logoutBtn) {
