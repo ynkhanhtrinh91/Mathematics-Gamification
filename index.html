@@ -6,33 +6,33 @@
     <title>Hệ Thống Tích Điểm & Rank Lớp Toán</title>
     
     <link rel="stylesheet" href="style.css?v=3000">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- SDK Firebase compat -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- SDK Firebase v8 Chuẩn tương thích 100% với script.js -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
 
     <!-- MÀN HÌNH ĐĂNG NHẬP -->
     <div id="login-screen" class="login-container">
-    <div class="login-card">
-        <h2><i class="fas fa-gamepad"></i> Đăng Nhập Lớp Toán</h2>
-        <p>Đường Tới Cao Thủ Toán Học</p>
-        <form id="login-form" onsubmit="event.preventDefault(); handleLogin();">
-            <div class="input-group">
-                <label>Tên đăng nhập</label>
-                <input type="text" id="username" placeholder="Nhập tên đăng nhập..." required>
-            </div>
-            <div class="input-group">
-                <label>Mật khẩu</label>
-                <input type="password" id="password" placeholder="Nhập mật khẩu..." required>
-            </div>
-            <button type="submit" class="btn-primary" style="width: 100%;">Đăng Nhập</button>
-        </form>
-        <p id="login-error" class="error-msg"></p>
+        <div class="login-card">
+            <h2><i class="fas fa-gamepad"></i> Đăng Nhập Lớp Toán</h2>
+            <p>Đường Tới Cao Thủ Toán Học</p>
+            <form id="login-form" onsubmit="event.preventDefault(); handleLogin();">
+                <div class="input-group">
+                    <label>Tên đăng nhập</label>
+                    <input type="text" id="username" placeholder="Nhập tên đăng nhập..." required>
+                </div>
+                <div class="input-group">
+                    <label>Mật khẩu</label>
+                    <input type="password" id="password" placeholder="Nhập mật khẩu..." required>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Đăng Nhập</button>
+            </form>
+            <p id="login-error" class="error-msg"></p>
+        </div>
     </div>
-</div>
 
     <!-- DASHBOARD CHÍNH -->
     <div id="app-screen" class="app-container hidden" style="display: none;">
@@ -98,7 +98,7 @@
                 <button onclick="resetMonthlyRank()" class="btn-reset-rank"><i class="fas fa-sync-alt"></i> Reset Rank Tháng Mới</button>
             </div>
 
-            <!-- TAB 1: BẢNG RANK & ĐIỂM TÍCH LŨY (GIỮ NGUYÊN HOÀN TOÀN) -->
+            <!-- TAB 1: BẢNG RANK & ĐIỂM TÍCH LŨY -->
             <div id="tab-rank" class="tab-content active">
                 <main class="dashboard-grid">
                     <!-- THẺ THÔNG TIN RANK & XP HỌC SINH -->
@@ -189,7 +189,7 @@
                     <section id="action-panel" class="card action-card hidden">
                         <h3><i class="fas fa-edit"></i> Cập Nhật Điểm Nhanh (Giáo Viên)</h3>
                         <div class="btn-grid">
-                            <button onclick="addXP(1, 'Phản ứng nhanh (<3p)')" class="btn-action">+1 XP: Phản ứng nhanh (<3p)</button>
+                            <button onclick="addXP(1, 'Phản ứng nhanh (<3p)')" class="btn-action">+1 XP: Phản ứng nhanh (&lt;3p)</button>
                             <button onclick="addXP(1, 'Coaching: Hỏi/Trả lời mở')" class="btn-action">+1 XP: Hỏi/Trả lời mở</button>
                             <button onclick="addXP(2, 'Coaching: Phát hiện cách 2/Lỗi sai')" class="btn-action">+2 XP: Phát hiện cách 2</button>
                             <button onclick="addXP(1, 'Vượt rào cản Không Biết')" class="btn-action">+1 XP: Thử phân tích bài</button>
@@ -197,7 +197,7 @@
                             <button onclick="addXP(1, 'BTVN Đầy đủ')" class="btn-action">+1 XP: BTVN Đầy đủ</button>
                             <button onclick="addXP(-1, 'Nói Không Biết phản xạ')" class="btn-danger">-1 XP: Tố không biết</button>
                             <button onclick="addXP(-1, 'Xao nhãng / Làm việc riêng')" class="btn-danger">-1 XP: Xao nhãng</button>
-                            <button onclick="addXP(-1, 'Vào lớp trễ quá 5 phút')" class="btn-danger">-1 XP: Vào trễ >5p</button>
+                            <button onclick="addXP(-1, 'Vào lớp trễ quá 5 phút')" class="btn-danger">-1 XP: Vào trễ &gt;5p</button>
                         </div>
                         <div class="custom-update">
                             <input type="number" id="input-test-score" min="0" max="10" step="0.25" placeholder="Nhập điểm thi...">
@@ -429,6 +429,7 @@
         </div>
     </div>
 
+    <!-- File JS chính -->
     <script src="script.js?v=3000"></script>
 </body>
 </html>
