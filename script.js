@@ -399,7 +399,7 @@ function renderHomeworks() {
             const label = { done: "Đã nộp", pending: "Đang tới hạn", late: sub ? "Nộp trễ" : "Quá hạn" }[st];
             let html = `<div class="hw-card-item status-${st}">
                 <div class="hw-header-row"><div><h4>${esc(hw.title)}</h4>${hw.desc ? `<p style="margin:0 0 .4rem;font-size:.85rem;">${esc(hw.desc)}</p>` : ""}</div>
-                <span class="hw-status-badge">${label}</span></div>
+                <div style="display:flex;gap:.5rem;align-items:center;"><span class="hw-status-badge">${label}</span>${isTeacher() ? `<button class="btn-danger" onclick="deleteHomework('${hw.id}')" title="Xóa bài tập"><i class="fas fa-trash"></i> Xóa</button>` : ""}</div></div>
                 <div class="hw-deadline-text"><i class="fas fa-clock"></i> Hạn nộp: ${fmtDateTime(hw.deadline)}</div>`;
             if (hw.fileUrl) html += `<a class="btn-pdf-download" href="${hw.fileUrl}" download="${esc(hw.fileName || "de-bai.pdf")}" target="_blank"><i class="fas fa-file-pdf"></i> Tải đề bài PDF</a>`;
 
@@ -461,6 +461,16 @@ function gradeHomework(id) {
     saveData();
     renderHomeworks();
     renderStudentData();
+}
+
+function deleteHomework(id) {
+    if (!isTeacher()) return;
+    const hw = appData.homeworks.find(h => h.id === id);
+    if (!hw) return;
+    if (!confirm("Xóa bài tập \"" + hw.title + "\"? Bài nộp và điểm của học sinh cho bài này cũng sẽ bị xóa.")) return;
+    appData.homeworks = appData.homeworks.filter(h => h.id !== id);
+    saveData();
+    renderHomeworks();
 }
 
 function handleCreateHomework(e) {
