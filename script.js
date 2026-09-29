@@ -268,7 +268,7 @@ function renderStudentData() {
     const test = s.testScore == null ? 0 : Number(s.testScore);
     const xpScore = Math.min(10, (xp / 110) * 10);
     const bonus = rank.bonus;
-    const final = Math.min(10, test * 0.6 + xpScore * 0.4 + bonus);
+    const final = Math.min(10, test * 0.7 + xpScore * 0.3 + bonus);
     document.getElementById("converted-xp-score").textContent = xpScore.toFixed(1) + " / 10";
     document.getElementById("rank-bonus-score").textContent = "+" + bonus + " điểm";
     document.getElementById("final-score").textContent = final.toFixed(1);
