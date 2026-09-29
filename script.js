@@ -709,3 +709,12 @@ function renderNotifications() {
 function saveToFirebase() {
     if (db) db.ref("app_data").set(appData);
 }
+// HÀM BỔ SUNG: XÓA BÀI TẬP DÀNH CHO GIÁO VIÊN
+function deleteHomework(hwId) {
+    if (!currentUser || currentUser.role !== "teacher") return;
+    if (confirm("Bạn có chắc chắn muốn XÓA bài tập này không?")) {
+        delete appData.homeworks[hwId];
+        saveToFirebase();
+        alert("Đã xóa bài tập thành công!");
+    }
+}
