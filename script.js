@@ -22,11 +22,11 @@ const initialData = {
     accounts: {
         teacher: { password: "teacher123", role: "teacher", name: "Trình Yến Khanh" },
         hung: { password: "hung123", role: "student", name: "Hưng" },
-        nhio: { password: "nhio123", role: "student", name: "Bạn Nhỏ" }
+        chauan: { password: "chauan123", role: "student", name: "Châu An" }
     },
     students: {
         hung: { name: "Hưng", xp: 0, streak: 0, lastStreakDate: "", testScore: null, history: [], cards: { hintCard: 0, homeworkCard: 0 } },
-        nhio: { name: "Bạn Nhỏ", xp: 0, streak: 0, lastStreakDate: "", testScore: null, history: [], cards: { hintCard: 0, homeworkCard: 0 } }
+        chauan: { name: "Châu An", xp: 0, streak: 0, lastStreakDate: "", testScore: null, history: [], cards: { hintCard: 0, homeworkCard: 0 } }
     },
     homeworks: [],
     notifications: [],
@@ -61,8 +61,9 @@ try {
             const val = snap.val();
             if (val) {
                 appData = val;
-                normalizeData();
+                const migrated = normalizeData();
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+                if (migrated) saveData();
                 if (currentUser) renderAll();
             } else {
                 saveData();
@@ -103,6 +104,31 @@ function normalizeData() {
     appData.homeworks = appData.homeworks || [];
     appData.notifications = appData.notifications || [];
     appData.schedule = appData.schedule || { planned: 8, completed: 0 };
+    return migrateRenameStudent("nhio", "chauan", "Châu An");
+}
+
+// Tự động chuyển dữ liệu cũ của "nhio" sang "chauan" (giữ nguyên XP, lịch sử, bài nộp, mật khẩu)
+function migrateRenameStudent(oldKey, newKey, newName) {
+    let changed = false;
+    ["accounts", "students"].forEach(group => {
+        const g = appData[group];
+        if (g && g[oldKey]) {
+            if (!g[newKey]) { g[newKey] = g[oldKey]; g[newKey].name = newName; }
+            delete g[oldKey];
+            changed = true;
+        }
+    });
+    (appData.homeworks || []).forEach(hw => {
+        ["submissions", "penalized"].forEach(f => {
+            if (hw[f] && hw[f][oldKey] !== undefined) {
+                if (hw[f][newKey] === undefined) hw[f][newKey] = hw[f][oldKey];
+                delete hw[f][oldKey];
+                changed = true;
+            }
+        });
+    });
+    if (changed) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch (e) {} }
+    return changed;
 }
 
 // ---------- TIỆN ÍCH ----------
