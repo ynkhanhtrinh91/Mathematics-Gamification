@@ -22,11 +22,11 @@ const initialData = {
     accounts: {
         teacher: { password: "teacher123", role: "teacher", name: "Trình Yến Khanh" },
         hung: { password: "hung123", role: "student", name: "Hưng" },
-        chauan: { password: "chauan123", role: "student", name: "Châu An" }
+        chucan: { password: "chucan123", role: "student", name: "Chúc An" }
     },
     students: {
         hung: { name: "Hưng", xp: 0, streak: 0, lastStreakDate: "", testScore: null, history: [], cards: { hintCard: 0, homeworkCard: 0 } },
-        chauan: { name: "Châu An", xp: 0, streak: 0, lastStreakDate: "", testScore: null, history: [], cards: { hintCard: 0, homeworkCard: 0 } }
+        chucan: { name: "Chúc An", xp: 0, streak: 0, lastStreakDate: "", testScore: null, history: [], cards: { hintCard: 0, homeworkCard: 0 } }
     },
     homeworks: [],
     notifications: [],
@@ -104,10 +104,10 @@ function normalizeData() {
     appData.homeworks = appData.homeworks || [];
     appData.notifications = appData.notifications || [];
     appData.schedule = appData.schedule || { planned: 8, completed: 0 };
-    return migrateRenameStudent("nhio", "chauan", "Châu An");
+    return migrateRenameStudent("nhio", "chucan", "Châu An");
 }
 
-// Tự động chuyển dữ liệu cũ của "nhio" sang "chauan" (giữ nguyên XP, lịch sử, bài nộp, mật khẩu)
+// Tự động chuyển dữ liệu cũ của "nhio" sang "chucan" (giữ nguyên XP, lịch sử, bài nộp, mật khẩu)
 function migrateRenameStudent(oldKey, newKey, newName) {
     let changed = false;
     ["accounts", "students"].forEach(group => {
