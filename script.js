@@ -66,7 +66,10 @@ try {
                 if (migrated) saveData();
                 if (currentUser) renderAll();
             } else {
+                appData = JSON.parse(JSON.stringify(initialData));
+                normalizeData();
                 saveData();
+                if (currentUser) renderAll();
             }
         });
     }
@@ -88,7 +91,20 @@ function saveData() {
     if (db) db.ref("appData").set(appData).catch(e => console.warn("Lỗi lưu Firebase:", e));
 }
 
+// Sửa dữ liệu bị import nhầm chỗ (bị lồng thêm một tầng "appData")
+function repairNestedData() {
+    let changed = false;
+    for (let i = 0; i < 3; i++) {
+        const inner = (appData.students && appData.students.appData) || appData.appData;
+        if (!inner || typeof inner !== "object") break;
+        appData = inner;
+        changed = true;
+    }
+    return changed;
+}
+
 function normalizeData() {
+    const repaired = repairNestedData();
     if (!appData.accounts || Object.keys(appData.accounts).length === 0) appData.accounts = JSON.parse(JSON.stringify(initialData.accounts));
     if (!appData.students) appData.students = JSON.parse(JSON.stringify(initialData.students));
     Object.keys(appData.students).forEach(k => {
@@ -106,7 +122,7 @@ function normalizeData() {
     appData.schedule = appData.schedule || { planned: 8, completed: 0 };
     const m1 = migrateRenameStudent("nhio", "chucan", "Chúc An");
     const m2 = migrateRenameStudent("chauan", "chucan", "Chúc An");
-    return m1 || m2;
+    return repaired || m1 || m2;
 }
 
 // Tự động chuyển dữ liệu cũ (nhio / chauan) sang khóa mới (giữ nguyên XP, lịch sử, bài nộp, mật khẩu)
@@ -147,7 +163,18 @@ function fmtDateTime(ts) {
 }
 function todayStr() { return new Date().toISOString().slice(0, 10); }
 function isTeacher() { return currentUser && currentUser.role === "teacher"; }
-function getStudent() { return appData.students[selectedStudentKey]; }
+function getStudent() {
+    // Nếu học sinh đang chọn chưa có dữ liệu thì tạo bản trống (tránh trang hiển thị dữ liệu của học sinh khác)
+    if (!appData.students[selectedStudentKey]) {
+        const opt = document.querySelector('#student-selector option[value="' + selectedStudentKey + '"]');
+        const acc = appData.accounts && appData.accounts[selectedStudentKey];
+        appData.students[selectedStudentKey] = {
+            name: (opt && opt.textContent) || (acc && acc.name) || selectedStudentKey,
+            xp: 0, streak: 0, lastStreakDate: "", testScore: null, history: [], cards: { hintCard: 0, homeworkCard: 0 }
+        };
+    }
+    return appData.students[selectedStudentKey];
+}
 function getRankIndex(xp) {
     let idx = 0;
     RANKS.forEach((r, i) => { if (xp >= r.min) idx = i; });
@@ -668,15 +695,15 @@ function bindUI() {
     // Sidebar thu gọn
     on("sidebar-toggle-btn", "click", () => document.getElementById("sidebar").classList.toggle("collapsed"));
 
-    // Chuyển tab
-    document.querySelectorAll(".nav-item").forEach(btn => {
-        btn.addEventListener("click", () => {
-            document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
-            document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
-            btn.classList.add("active");
-            const tab = document.getElementById(btn.dataset.tab);
-            if (tab) tab.classList.add("active");
-        });
+    // Chuyển tab (event delegation - luôn hoạt động kể cả khi render lại)
+    document.addEventListener("click", e => {
+        const btn = e.target.closest ? e.target.closest(".nav-item") : null;
+        if (!btn) return;
+        document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+        btn.classList.add("active");
+        const tab = document.getElementById(btn.dataset.tab);
+        if (tab) tab.classList.add("active");
     });
 
     // Chuông thông báo
