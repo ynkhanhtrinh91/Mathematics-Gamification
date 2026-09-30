@@ -104,16 +104,21 @@ function normalizeData() {
     appData.homeworks = appData.homeworks || [];
     appData.notifications = appData.notifications || [];
     appData.schedule = appData.schedule || { planned: 8, completed: 0 };
-    return migrateRenameStudent("nhio", "chucan", "Châu An");
+    const m1 = migrateRenameStudent("nhio", "chucan", "Chúc An");
+    const m2 = migrateRenameStudent("chauan", "chucan", "Chúc An");
+    return m1 || m2;
 }
 
-// Tự động chuyển dữ liệu cũ của "nhio" sang "chucan" (giữ nguyên XP, lịch sử, bài nộp, mật khẩu)
+// Tự động chuyển dữ liệu cũ (nhio / chauan) sang khóa mới (giữ nguyên XP, lịch sử, bài nộp, mật khẩu)
 function migrateRenameStudent(oldKey, newKey, newName) {
     let changed = false;
     ["accounts", "students"].forEach(group => {
         const g = appData[group];
         if (g && g[oldKey]) {
-            if (!g[newKey]) { g[newKey] = g[oldKey]; g[newKey].name = newName; }
+            const cur = g[newKey];
+            const pristine = !cur || (group === "students" && !(cur.xp > 0) && !(cur.history && cur.history.length));
+            if (pristine) g[newKey] = g[oldKey];
+            g[newKey].name = newName;
             delete g[oldKey];
             changed = true;
         }
@@ -266,7 +271,7 @@ function applyHomeworkPenalties() {
         hw.penalized = hw.penalized || {};
         Object.keys(appData.students).forEach(key => {
             const sub = hw.submissions && hw.submissions[key];
-            if (sub || hw.penalized[key]) return;
+            if (sub || hw.penalized[key] || !hwAssigned(hw, key)) return;
             const st = appData.students[key];
             st.xp = Math.max(0, st.xp - 10);
             pushHistory(st, -10, "Không làm BTVN: " + hw.title);
@@ -280,6 +285,7 @@ function applyHomeworkPenalties() {
 
 function renderAll() {
     applyHomeworkPenalties();
+    populateAssigneeSelect();
     renderStudentData();
     renderHomeworks();
     renderTuitionAndCalendar();
@@ -432,6 +438,20 @@ function resetMonthlyRank() {
 }
 
 // ---------- TAB 2: BÀI TẬP VỀ NHÀ ----------
+// Bài tập giao chung (không có assignees) hoặc giao riêng cho một số học sinh
+function hwAssigned(hw, key) {
+    return !hw.assignees || hw.assignees.length === 0 || hw.assignees.includes(key);
+}
+
+function populateAssigneeSelect() {
+    const sel = document.getElementById("hw-assignee");
+    if (!sel) return;
+    const cur = sel.value || "all";
+    sel.innerHTML = '<option value="all">Cả lớp</option>' +
+        Object.keys(appData.students).map(k => `<option value="${esc(k)}">${esc(appData.students[k].name)}</option>`).join("");
+    sel.value = Array.from(sel.options).some(o => o.value === cur) ? cur : "all";
+}
+
 function hwStatus(hw, key) {
     const sub = hw.submissions && hw.submissions[key];
     const deadline = new Date(hw.deadline).getTime();
@@ -442,7 +462,7 @@ function hwStatus(hw, key) {
 function renderHomeworks() {
     const box = document.getElementById("hw-list");
     if (!box) return;
-    const list = appData.homeworks.slice().reverse();
+    const list = appData.homeworks.filter(hw => hwAssigned(hw, selectedStudentKey)).reverse();
     const counts = { done: 0, pending: 0, late: 0 };
 
     box.innerHTML = list.length === 0
@@ -456,6 +476,7 @@ function renderHomeworks() {
                 <div class="hw-header-row"><div><h4>${esc(hw.title)}</h4>${hw.desc ? `<p style="margin:0 0 .4rem;font-size:.85rem;">${esc(hw.desc)}</p>` : ""}</div>
                 <div style="display:flex;gap:.5rem;align-items:center;"><span class="hw-status-badge">${label}</span>${isTeacher() ? `<button class="btn-danger" onclick="deleteHomework('${hw.id}')" title="Xóa bài tập"><i class="fas fa-trash"></i> Xóa</button>` : ""}</div></div>
                 <div class="hw-deadline-text"><i class="fas fa-clock"></i> Hạn nộp: ${fmtDateTime(hw.deadline)}</div>`;
+            if (isTeacher()) html += `<div class="hw-deadline-text"><i class="fas fa-user-check"></i> Giao cho: ${(hw.assignees && hw.assignees.length) ? hw.assignees.map(k => esc((appData.students[k] || {}).name || k)).join(", ") : "Cả lớp"}</div>`;
             if (hw.fileUrl) html += `<a class="btn-pdf-download" href="${hw.fileUrl}" download="${esc(hw.fileName || "de-bai.pdf")}" target="_blank"><i class="fas fa-file-pdf"></i> Tải đề bài PDF</a>`;
 
             if (!isTeacher()) {
@@ -535,11 +556,12 @@ function handleCreateHomework(e) {
     const desc = document.getElementById("hw-desc").value.trim();
     const deadline = document.getElementById("hw-deadline").value;
     const fileInput = document.getElementById("teacher-hw-file");
+    const assignee = document.getElementById("hw-assignee").value;
     if (!title || !deadline) return;
 
     const finish = f => {
         appData.homeworks.push({
-            id: "hw" + Date.now(), title, desc, deadline, penalty: true, penalized: {},
+            id: "hw" + Date.now(), title, desc, deadline, penalty: true, penalized: {}, assignees: assignee === "all" ? [] : [assignee],
             fileName: f ? f.name : "", fileUrl: f ? f.url : "", submissions: {}
         });
         saveData();
