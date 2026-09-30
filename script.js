@@ -584,7 +584,7 @@ function renderTuitionAndCalendar() {
         let cls = "cal-day";
         if (d === now.getDate()) cls += " today";
         if (makeup.includes(d)) cls += " makeup-class";
-        else if ([2, 5, 6].includes(dow)) cls += " has-class";
+        else if ([2, 3, 5].includes(dow)) cls += " has-class";
         const dot = cls.includes("class") ? '<span class="class-dot"></span>' : "";
         html += `<div class="${cls}">${d}${dot}</div>`;
     }
