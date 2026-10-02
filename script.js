@@ -16,6 +16,10 @@ const firebaseConfig = {
     measurementId: "G-J6P9F1PVF7"
 };
 
+// Đặt true CHỈ KHI đã bật Firebase Storage (Console > Storage > Get started) và cho phép ghi.
+// false = file PDF được lưu thẳng trong database (tối đa 1,5MB/file), không cần Storage.
+const USE_FIREBASE_STORAGE = false;
+
 // ---------- DỮ LIỆU MẶC ĐỊNH ----------
 // !!! ĐỔI TÀI KHOẢN / MẬT KHẨU Ở ĐÂY !!!
 const initialData = {
@@ -56,7 +60,7 @@ try {
     if (typeof firebase !== "undefined" && firebaseConfig.apiKey && firebaseConfig.databaseURL) {
         firebase.initializeApp(firebaseConfig);
         db = firebase.database();
-        if (firebase.storage && firebaseConfig.storageBucket) storageRef = firebase.storage().ref();
+        if (USE_FIREBASE_STORAGE && firebase.storage && firebaseConfig.storageBucket) storageRef = firebase.storage().ref();
         db.ref("appData").on("value", snap => {
             const val = snap.val();
             if (val) {
@@ -88,7 +92,14 @@ function loadLocal() {
 
 function saveData() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch (e) { console.warn("Không lưu được localStorage:", e); }
-    if (db) db.ref("appData").set(appData).catch(e => console.warn("Lỗi lưu Firebase:", e));
+    if (db) {
+        try {
+            db.ref("appData").set(JSON.parse(JSON.stringify(appData))).catch(e => {
+                console.warn("Lỗi lưu Firebase:", e);
+                if (!saveData.warned) { saveData.warned = true; alert("Không lưu được lên Firebase: " + (e && e.message ? e.message : e) + "\nKiểm tra Rules của Realtime Database (cần cho phép ghi)."); }
+            });
+        } catch (e) { console.warn("Lỗi lưu Firebase:", e); }
+    }
 }
 
 // Sửa dữ liệu bị import nhầm chỗ (bị lồng thêm một tầng "appData")
@@ -192,7 +203,9 @@ function readAsDataURL(file) {
 function readFile(file) {
     if (!storageRef) return readAsDataURL(file);
     const ref = storageRef.child("pdf/" + Date.now() + "_" + file.name);
-    return ref.put(file).then(() => ref.getDownloadURL()).then(url => ({ name: file.name, url }))
+    const upload = ref.put(file).then(() => ref.getDownloadURL()).then(url => ({ name: file.name, url }));
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Storage quá thời gian chờ")), 8000));
+    return Promise.race([upload, timeout])
         .catch(err => { console.warn("Storage lỗi, chuyển sang lưu trực tiếp:", err); return readAsDataURL(file); });
 }
 
@@ -583,19 +596,26 @@ function handleCreateHomework(e) {
     const desc = document.getElementById("hw-desc").value.trim();
     const deadline = document.getElementById("hw-deadline").value;
     const fileInput = document.getElementById("teacher-hw-file");
-    const assignee = document.getElementById("hw-assignee").value;
-    if (!title || !deadline) return;
+    const assigneeEl = document.getElementById("hw-assignee");
+    const assignee = assigneeEl ? assigneeEl.value : "all";
+    if (!title || !deadline) { alert("Vui lòng nhập tiêu đề và hạn nộp."); return; }
 
     const finish = f => {
-        appData.homeworks.push({
-            id: "hw" + Date.now(), title, desc, deadline, penalty: true, penalized: {}, assignees: assignee === "all" ? [] : [assignee],
-            fileName: f ? f.name : "", fileUrl: f ? f.url : "", submissions: {}
-        });
-        saveData();
-        document.getElementById("create-hw-form").reset();
-        renderHomeworks();
+        try {
+            appData.homeworks.push({
+                id: "hw" + Date.now(), title, desc, deadline, penalty: true, penalized: {},
+                assignees: assignee === "all" ? [] : [assignee],
+                fileName: f ? f.name : "", fileUrl: f ? f.url : "", submissions: {}
+            });
+            saveData();
+            document.getElementById("create-hw-form").reset();
+            renderHomeworks();
+        } catch (err) {
+            console.error(err);
+            alert("Không giao được bài tập: " + err.message);
+        }
     };
-    if (fileInput.files[0]) readFile(fileInput.files[0]).then(finish).catch(err => alert("Lỗi tải file: " + err.message));
+    if (fileInput && fileInput.files[0]) readFile(fileInput.files[0]).then(finish).catch(err => alert("Lỗi tải file: " + err.message));
     else finish(null);
 }
 
